@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The THRIVE Experience - Master Assessment & Action Planner</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        /* CSS background and text color variables mapped to target scoring categories.
+           Modify these hex codes to adjust the color scheme of score badges. */
+
+        .score-Low, .badge-Low, .score-All-The-Time { background-color: #991b1b; color: #ffffff; }
+        .score-Medium-Low, .badge-Medium-Low, .score-Frequently { background-color: #fee2e2; color: #991b1b; }
+        .score-Medium, .badge-Medium, .score-Sometimes { background-color: #fef3c7; color: #92400e; }
+        .score-Medium-High, .badge-Medium-High, .score-Infrequently { background-color: #dcfce7; color: #166534; }
+        .score-High, .badge-High, .score-Rarely-Never { background-color: #1e5e3a; color: #ffffff; }
+        textarea { resize: none; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans antialiased text-gray-900 pb-12">
+
+    <header class="bg-white border-b border-gray-200 py-6 px-4 mb-8 shadow-sm">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-tight text-gray-800">THRIVE <span class="text-emerald-600 font-medium">Assessment</span></h1>
+            <span id="app-phase-badge" class="text-xs font-semibold uppercase tracking-wider bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200">Questionnaire</span>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4">
+
+        <div id="welcome-screen" class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm max-w-2xl mx-auto text-center space-y-6">
+            <h2 class="text-3xl font-extrabold text-gray-900">Welcome to the THRIVE Assessment by Patricia Massey Coaching</h2>
+            
+	<p class="text-gray-600 leading-relaxed text-sm">
+ 	   This is a self-guided version of my THRIVE Diagnostic Workshop.  It guides you through a self-assessment across four life domains, gauges your burnout risk, and facilitates the construction of an action blueprint.
+	</p>
+	<p class="text-gray-600 leading-relaxed text-sm">
+   	 Please allow at least 45-60 minutes to fully answer the questions and build the action plan.
+	</p>
+	<p class="text-gray-600 leading-relaxed text-sm">
+    	You will have the option to pause/save once you have completed all of the questions, before starting the action planning, if you cannot complete it all at once or need to take a break.
+	</p>
+	<p class="text-gray-800 leading-relaxed text-sm">
+    	My wish is that this is the beginning of increased satisfaction and THRIVE-ing in your life.
+	</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+                <div class="p-4 border border-gray-200 rounded-xl text-left flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-sm">Option A: Start Fresh</h3>
+                        <p class="text-xs text-gray-500 mt-1">Begin from the very first question of the assessment.</p>
+                    </div>
+                    <button onclick="beginMasterPipeline()" class="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded-lg text-xs transition cursor-pointer shadow-sm">
+                        Start Assessment
+                    </button>
+                </div>
+                
+                <div class="p-4 border border-gray-200 rounded-xl text-left flex flex-col justify-between bg-slate-50/50">
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-sm">Option B: Resume Progress</h3>
+                        <p class="text-xs text-gray-500 mt-1">Upload your previously saved questionnaire data, and go straight to action planning.</p>
+                    </div>
+                    <div class="mt-4">
+                        <label for="file-upload-input" class="w-full inline-block text-center border border-indigo-300 text-indigo-700 bg-white hover:bg-indigo-50 font-bold py-2.5 rounded-lg text-xs transition cursor-pointer shadow-sm">
+                            Upload Progress File (.json)
+                        </label>
+                        <input type="file" id="file-upload-input" onchange="executeProgressImport(event)" class="hidden" accept=".json">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="transition-screen" style="display: none;" class="bg-white border border-gray-200 rounded-2xl p-10 shadow-sm max-w-2xl mx-auto text-center border-t-4 border-t-emerald-600">
+            <span id="transition-phase-tag" class="text-xs font-bold text-emerald-600 uppercase tracking-wider block mb-2">Up Next</span>
+            <h2 id="transition-title" class="text-3xl font-extrabold text-gray-900 mb-4">Loading Domain...</h2>
+            <p id="transition-desc" class="text-gray-600 mb-8 leading-relaxed text-lg"></p>
+            <button onclick="proceedToActiveQuestions()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-8 py-3 rounded-xl transition duration-150 cursor-pointer shadow-sm">
+                Let's Go
+            </button>
+        </div>
+
+        <div id="assessment-container" style="display: none;" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="md:col-span-1 space-y-4">
+                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm sticky top-6">
+                    <h3 id="sidebar-segment-title" class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Current segment</h3>
+                    <div id="domain-badge" class="text-sm font-bold text-emerald-700 bg-emerald-50/50 border border-emerald-100 rounded-lg px-2 py-2 mb-6 text-center">
+                        -
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-xs font-medium text-gray-500">
+                            <span>Step Tracking</span>
+                            <span id="progress-text">Question 1 of 24</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2">
+                            <div id="progress-bar" class="bg-emerald-600 h-2 rounded-full transition-all duration-300" style="width: 4%"></div>
+                        </div>
+                    </div>
+                    <div class="pt-6 mt-6 border-t border-gray-100 flex gap-3">
+                        <button id="prev-btn" onclick="processPreviousStep()" class="w-1/2 border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded-xl hover:bg-gray-50 transition cursor-pointer">Previous</button>
+                        <button id="next-btn" onclick="processNextStep()" class="w-1/2 bg-emerald-600 text-white font-medium py-2 px-4 rounded-xl hover:bg-emerald-700 transition cursor-pointer">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="md:col-span-2">
+                <div class="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm min-h-[400px] flex flex-col justify-between">
+                    <div>
+                        <span id="question-context-label" class="text-xs font-semibold text-emerald-600 tracking-wider uppercase block mb-1">Context</span>
+                        <h2 id="question-text-display" class="text-xl md:text-2xl font-bold text-gray-900 leading-snug mb-6">Loading question...</h2>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Your Reflections & Musings</label>
+                            <textarea id="musing-input" rows="4" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder="Write down whatever comes to mind..."></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3">Select Your Rating Choice</label>
+                            <div id="rating-buttons-grid" class="grid grid-cols-1 sm:grid-cols-5 gap-2.5"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="domains-summary-screen" style="display: none;" class="space-y-6">
+            <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm text-center max-w-2xl mx-auto">
+                <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Your Four Life Domain Satisfaction Scores</h2>
+                <p class="text-gray-500 text-sm mb-6">Here are your compiled satisfaction scores across the four life domains before we map your overall position on the THRIVE Grid.</p>
+                <div id="domains-cards-injected-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                <div class="mt-8 pt-6 border-t border-gray-100 flex justify-end">
+                    <button onclick="advanceFromDomainsToMatrixGrid()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl transition text-sm shadow-xs cursor-pointer">
+                        Advance to Your Location on the THRIVE Grid ➔
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="matrix-dashboard-screen" style="display: none;" class="space-y-6">
+            <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm text-center max-w-2xl mx-auto">
+                <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Your Position on the THRIVE Grid</h2>
+                <p class="text-gray-500 text-sm mb-6">We have combined your Life Satisfaction against your Burnout Indicators.</p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto">
+                    <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 text-center">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Y-Axis: Life Domain Score</span>
+                        <span id="y-text-pill" class="inline-block mt-2 px-4 py-1 text-sm font-bold rounded-full border">-</span>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 text-center">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">X-Axis: Burnout Score</span>
+                        <span id="x-text-pill" class="inline-block mt-2 px-4 py-1 text-sm font-bold rounded-full border">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col items-center max-w-2xl mx-auto">
+                <canvas id="thriveCanvas" width="560" height="430" class="max-w-full h-auto border border-gray-100 rounded-lg bg-white shadow-xs"></canvas>
+                
+                <div class="w-full border-t border-gray-100 pt-6 mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <button onclick="executeProgressExport()" class="w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-4 rounded-xl transition shadow-xs text-sm text-center cursor-pointer">
+                        💾 Save Progress & Exit (Download Data)
+                    </button>
+                    <button onclick="advanceToPlannerSelection()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl transition shadow-xs text-sm text-center cursor-pointer">
+                        🚀 Continue to Action Planning Now
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="selection-screen" style="display: none;" class="space-y-6">
+            <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                <h2 class="text-2xl font-extrabold text-gray-900 mb-2">Build Your Action Plan</h2>
+                <p class="text-sm text-gray-600 leading-relaxed">
+                    Review the highest and lowest scores from your Life Domains below. Select exactly <strong class="text-emerald-700">3 Positive rows to Protect</strong> (this is what's keeping you healthy right now) and exactly <strong class="text-red-700">3 Negative rows to Address</strong> (this is where changes can yield improved satisfaction) for building action plans.
+                </p>
+                <div class="flex flex-wrap gap-4 mt-4 text-xs font-bold uppercase tracking-wider">
+                    <span id="protect-counter" class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-md border border-emerald-200">Protect: 0 / 3 Selected</span>
+                    <span id="address-counter" class="bg-red-50 text-red-700 px-3 py-1 rounded-md border border-red-200">Address: 0 / 3 Selected</span>
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                            <th class="p-4 w-1/2">Assessment Metrics & Prompts</th>
+                            <th class="p-4 text-center">Calculated Score</th>
+                            <th class="p-4 text-center text-emerald-700 bg-emerald-50/30">Protect (Pick 3)</th>
+                            <th class="p-4 text-center text-red-700 bg-red-50/30">Address (Pick 3)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matrix-table-body"></tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-end">
+                <button id="start-planning-btn" onclick="initiateActionSequencer()" disabled class="bg-gray-400 text-white font-medium px-8 py-3 rounded-xl transition shadow-sm cursor-not-allowed">
+                    Lock Focus Areas for Action Planning
+                </button>
+            </div>
+        </div>
+
+        <div id="sequencer-screen" style="display: none;" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="md:col-span-1">
+                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm sticky top-6">
+                    <span id="seq-type-badge" class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border inline-block mb-3">-</span>
+                    <h3 id="seq-domain" class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">-</h3>
+                    <div class="space-y-2 mb-6">
+                        <div class="flex justify-between text-xs font-medium text-gray-500">
+                            <span>Blueprint Progress</span>
+                            <span id="seq-progress-text">Page 1 of 6</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2">
+                            <div id="seq-progress-bar" class="bg-sky-600 h-2 rounded-full transition-all duration-300" style="width: 16%"></div>
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-100 pt-4 flex gap-3">
+                        <button onclick="backtrackSequencerPage()" class="w-1/2 border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded-xl hover:bg-gray-50 transition cursor-pointer">Back</button>
+                        <button onclick="advanceSequencerPage()" class="w-1/2 bg-sky-600 hover:bg-sky-700 text-white font-medium py-2 px-4 rounded-xl transition cursor-pointer">Save & Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="md:col-span-2 space-y-6">
+                <div class="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
+                    <span class="text-xs font-bold text-sky-600 uppercase tracking-wider block mb-1">Focus Area:</span>
+                    <h2 id="seq-prompt-text" class="text-xl font-bold text-gray-900 leading-snug">Loading Prompt...</h2>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                    <label class="block text-sm font-bold text-gray-800 uppercase tracking-wide mb-2">⚡ Immediate Action (Next 24 Hours)</label>
+                    <textarea id="time-immediate" rows="2" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder="What is one micro-step you can execute in the next 24 hours?"></textarea>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                    <label class="block text-sm font-bold text-gray-800 uppercase tracking-wide mb-2">📅 Short Term Action (Days to Weeks)</label>
+                    <textarea id="time-short" rows="2" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder="Near-term course adjustments..."></textarea>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                    <label class="block text-sm font-bold text-gray-800 uppercase tracking-wide mb-2">⛰️ Medium Term Action (Weeks to Months)</label>
+                    <textarea id="time-medium" rows="2" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder="Habit design changes..."></textarea>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                    <label class="block text-sm font-bold text-gray-800 uppercase tracking-wide mb-2">🚀 Long Term Action (Months to Years)</label>
+                    <textarea id="time-long" rows="3" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder="Macro structural milestone pivots..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div id="summary-review-screen" style="display: none;" class="space-y-6">
+            <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 id="summary-screen-title" class="text-2xl font-extrabold text-gray-900">Review Your Blueprint Timelines</h2>
+                    <p class="text-sm text-gray-500">Fine-tune your timelines and actions below. Every card is directly editable and sizable.</p>
+                </div>
+                <button id="summary-forward-btn" onclick="processSummaryAdvance()" class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-8 py-3 rounded-xl transition shadow-sm cursor-pointer font-semibold text-sm">
+                    Looks Great, Proceed Next
+                </button>
+            </div>
+            <div id="summary-cards-container" class="space-y-8"></div>
+        </div>
+
+        <div id="finish-screen" style="display: none;" class="space-y-8">
+            <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm text-center max-w-2xl mx-auto border-t-4 border-t-emerald-600">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 text-3xl mb-4">✓</div>
+                <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Your THRIVE Master Blueprint Is Ready</h2>
+                <p class="text-gray-600 mb-6 leading-relaxed text-sm">
+                    Your calculated satisfaction baselines, burnout risk, resulting location on the THRIVE Grid, and prioritized action plans are compiled. Generate your secure blueprint below.
+                </p>
+                <button onclick="executePDFGenerationEngine()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-10 py-4 rounded-xl transition shadow-md cursor-pointer tracking-wide text-sm">
+                    Download My THRIVE Blueprint (PDF)
+                </button>
+            </div>
+
+            <div style="display: none;"><div id="pdf-printing-template" class="p-12 bg-white text-gray-900 space-y-8"></div></div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- 1. DATA MODELS & STRUCTURAL DICTIONARIES ---
+
+        // Text introductory copy for interstitial slide segments transition jumps
+        const domainTransitions = {
+            "Work": { title: "Let's start with Work", desc: "We'll begin by looking at your satisfaction with various aspects of your current professional situation." },
+            "Home": { title: "Now let's do Home", desc: "Next, we look at your satisfaction with various aspects of your home life." },
+            "External/Community": { title: "Next is External/Community", desc: "This could be a book club or a bowling league or a faith community. Somewhere else you go for a network or support." },
+            "Self": { title: "Let's finish with Self", desc: "Finally, we will evaluate your satisfaction with various aspects of your personal well-being." },
+            "Burnout Evaluation": { title: "Let's look at Burnout", desc: "We will now switch focus to gauge your burnout risk." }
+        };
+
+        // 360 Core Life Satisfaction Assessment Questions (Items 0 to 23)
+        const lifeQuestions = [
+            { id: 0, segment: "LIFE", category: "Work", prompt: "Where you work (physical location, culture, commute)", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 1, segment: "LIFE", category: "Work", prompt: "Who you work with (peers, boss(es), clients, partners)", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 2, segment: "LIFE", category: "Work", prompt: "What you do (your role, using your skills, how you contribute)", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 3, segment: "LIFE", category: "Work", prompt: "The possible future, long-term plans", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 4, segment: "LIFE", category: "Work", prompt: "Your overall fulfillment in this place, with these people, in this role", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 5, segment: "LIFE", category: "Work", prompt: "How you feel when / after you are there (drained vs restored)", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            
+            { id: 6, segment: "LIFE", category: "Home", prompt: "Where you live (location, neighborhood, the building itself)", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 7, segment: "LIFE", category: "Home", prompt: "Who you live with (partner, children, pets, other relatives)", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 8, segment: "LIFE", category: "Home", prompt: "Your role in that home, with those people", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 9, segment: "LIFE", category: "Home", prompt: "The possible future, long-term plans and visions", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 10, segment: "LIFE", category: "Home", prompt: "Your overall fulfillment in this place, with these people, in this role", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 11, segment: "LIFE", category: "Home", prompt: "How you feel when / after you are there (drained vs restored)", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            
+            { id: 12, segment: "LIFE", category: "External/Community", prompt: "Where else you go (friends/extended fam, group/club, faith)", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 13, segment: "LIFE", category: "External/Community", prompt: "Who else you interact with (the people in that group)", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 14, segment: "LIFE", category: "External/Community", prompt: "Your role in this group with those people", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 15, segment: "LIFE", category: "External/Community", prompt: "The possible future, long-term plans", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 16, segment: "LIFE", category: "External/Community", prompt: "Your overall fulfillment in this place, with these people, in this role", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 17, segment: "LIFE", category: "External/Community", prompt: "How you feel when / after you are there (drained vs restored)", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            
+            { id: 18, segment: "LIFE", category: "Self", prompt: "Your physical health in general (could include medical input)", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 19, segment: "LIFE", category: "Self", prompt: "Your sleep - amount and quality", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 20, segment: "LIFE", category: "Self", prompt: "Your nutrition", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 21, segment: "LIFE", category: "Self", prompt: "Your exercise", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 22, segment: "LIFE", category: "Self", prompt: "Your mental health", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] },
+            { id: 23, segment: "LIFE", category: "Self", prompt: "Your spiritual health (does not necessarily mean religion)", textLabels: ["Low", "Medium-Low", "Medium", "Medium-High", "High"] }
+        ];
+
+        // Capacity and Burnout Diagnostic Indicator Questions (Items 24 to 35)
+        const burnoutQuestions = [
+            { id: 24, segment: "BURNOUT", category: "Burnout Evaluation", prompt: "Do you question the value of your work?", textLabels: ["Rarely / Never", "Infrequently", "Sometimes", "Frequently", "All The Time"] },
+            { id: 25, segment: "BURNOUT", category: "Burnout Evaluation", prompt: "Do you drag yourself to work and have trouble getting started?", textLabels: ["Rarely / Never", "Infrequently", "Sometimes", "Frequently", "All The Time"] },
+            { id: 26, segment: "BURNOUT", category: "Burnout Evaluation", prompt: "Do you feel removed or disconnected from your work and the people you work with?", textLabels: ["Rarely / Never", "Infrequently", "Sometimes", "Frequently", "All The Time"] },
+            { id: 27, segment: "BURNOUT", category: "Burnout Evaluation", prompt: "Have you lost patience with co-workers or clients? (Or even family members and you know it's because of work)", textLabels: ["Rarely / Never", "Infrequently", "Sometimes", "Frequently", "All The Time"] },
+            { id: 28, segment: "BURNOUT", category: "Burnout Evaluation", prompt: "Do you lack the energy to do your job well?", textLabels: ["Rarely / Never", "Infrequently", "Sometimes", "Frequently", "All The Time"] },
+            { id: 29, segment: "BURNOUT", category: "Burnout Evaluation", prompt: "Is it hard to focus on your job?", textLabels: ["Rarely / Never", "Infrequently", "Sometimes", "Frequently", "All The Time"] },
+            { id: 30, segment: "BURNOUT", category: "Burnout Evaluation", prompt: "Do you feel dissatisfied what you accomplish in a day?", textLabels: ["Rarely / Never", "Infrequently", "Sometimes", "Frequently", "All The Time"] },
+            { id: 31, segment: "BURNOUT", category: "Burnout Evaluation", prompt: "Do you feel let down by your job?", textLabels: ["Rarely / Never", "Infrequently", "Sometimes", "Frequently", "All The Time"] },
+            { id: 32, segment: "BURNOUT", category: "Burnout Evaluation", prompt: "Do you doubt your skills and abilities?", textLabels: ["Rarely / Never", "Infrequently", "Sometimes", "Frequently", "All The Time"] },
+            { id: 33, segment: "BURNOUT", category: "Burnout Evaluation", prompt: "Do you turn to food or alcohol or other potentially unhealthy distractions to cope with how you feel?", textLabels: ["Rarely / Never", "Infrequently", "Sometimes", "Frequently", "All The Time"] },
+            { id: 34, segment: "BURNOUT", category: "Burnout Evaluation", prompt: "Is your sleep impacted or have your sleep habits changed?", textLabels: ["Rarely / Never", "Infrequently", "Sometimes", "Frequently", "All The Time"] },
+            { id: 35, segment: "BURNOUT", category: "Burnout Evaluation", prompt: "Do you have headaches, stomach problems, or other physical complaints with no known cause?", textLabels: ["Rarely / Never", "Infrequently", "Sometimes", "Frequently", "All The Time"] }
+        ];
+
+        // Combines both arrays together into a single global 36-question collection list pipeline
+        const masterQuestions = [...lifeQuestions, ...burnoutQuestions];
+        
+        // Response initialization mapping data state object structures
+        let masterResponses = Array(masterQuestions.length).fill(null).map(() => ({ score: null, label: "", musing: "" }));
+
+        // 5x5 Grid Hex Color Coordinates for rendering the matrix dashboard grid canvas map
+        const matrixColorLayout = [
+            ["#ffd966", "#f8f274", "#6aa84f", "#38761d", "#38761d"], 
+            ["#ff9900", "#ffd966", "#f8f274", "#6aa84f", "#38761d"], 
+            ["#cc0000", "#ff9900", "#ffd966", "#f8f274", "#6aa84f"], 
+            ["#990000", "#cc0000", "#ff9900", "#ffd966", "#f8f274"], 
+            ["#990000", "#990000", "#cc0000", "#ff9900", "#ffd966"]  
+        ];
+
+        // Axis label mapping text declarations array configurations
+        const yLabels = ["Low", "Medium Low", "Medium", "Medium High", "High"];
+        const xLabels = ["All The Time", "Frequently", "Sometimes", "Infrequently", "Rarely / Never"];
+
+        // --- 2. SESSION SYSTEM VARIABLES STATE ---
+        let activeQuestionIndex = 0; // Tracks which question is currently visible
+        let viewedTransitions = {}; // Remembers which category intro screens have already been shown
+        let selectedProtectIds = []; // Holds the index selections for the 3 positive priority rows
+        let selectedAddressIds = []; // Holds the index selections for the 3 negative priority rows
+        let planningSequenceList = []; // Array tracking the chosen elements for step-by-step strategy planning
+        let runningSeqIdx = 0; // Steps through the 6 action items in the strategy builder
+        let activeSummaryFilter = "PROTECT"; // Flags if review window filters protect vs address cards
+        
+        // Calculated final average values storage metrics scalars
+        let finalGlobalLifeAvg = 0;
+        let finalGlobalBurnoutAvg = 0;
+        let debugActiveBypassMode = false;
+        let debugScores = { "Work": 0, "Home": 0, "External/Community": 0, "Self": 0 };
+
+        // --- 3. PIPELINE STAGE CONTROLLERS & NAVIGATION ACTIONS ---
+
+        // Debug bypass visibility toggler (Hidden utility legacy handle)
+        function toggleDebugView() {
+            const isChecked = document.getElementById("debug-toggle").checked;
+            document.getElementById("debug-sliders-box").style.display = isChecked ? "block" : "none";
+        }
+
+        // Quick entry bypass router engine module
+        function executeDebugBypassJump() {
+            debugActiveBypassMode = true;
+            
+            debugScores["Work"] = parseFloat(document.getElementById("db-work").value);
+            debugScores["Home"] = parseFloat(document.getElementById("db-home").value);
+            debugScores["External/Community"] = parseFloat(document.getElementById("db-external").value);
+            debugScores["Self"] = parseFloat(document.getElementById("db-self").value);
+            finalGlobalBurnoutAvg = parseFloat(document.getElementById("db-burnout").value);
+
+            finalGlobalLifeAvg = (debugScores["Work"] + debugScores["Home"] + debugScores["External/Community"] + debugScores["Self"]) / 4;
+
+            masterResponses.forEach((res, i) => {
+                let targetScore = (i < 24) ? finalGlobalLifeAvg : finalGlobalBurnoutAvg;
+                res.score = Math.round(targetScore);
+                res.label = locateStandardTextLabel(targetScore, (i >= 24));
+            });
+
+            document.getElementById('welcome-screen').style.display = 'none';
+            renderIndividualDomainsPage();
+        }
+
+        // Starts a fresh assessment sequence
+        function beginMasterPipeline() {
+            document.getElementById('welcome-screen').style.display = 'none';
+            evaluateTransitionTrigger();
+        }
+
+        // Checks if an introductory domain transition screen needs to be shown before questions load
+        function evaluateTransitionTrigger() {
+            const currentItem = masterQuestions[activeQuestionIndex];
+            const cat = currentItem.category;
+
+            if (!viewedTransitions[cat]) {
+                viewedTransitions[cat] = true;
+                document.getElementById('assessment-container').style.display = 'none';
+                document.getElementById('transition-screen').style.display = 'block';
+                
+                document.getElementById('transition-title').innerText = domainTransitions[cat].title;
+                document.getElementById('transition-desc').innerText = domainTransitions[cat].desc;
+            } else {
+                proceedToActiveQuestions();
+            }
+        }
+
+        // Displays the standard quiz interface box sheet
+        function proceedToActiveQuestions() {
+            document.getElementById('transition-screen').style.display = 'none';
+            document.getElementById('assessment-container').style.display = 'flex';
+            drawActiveQuestionCard();
+        }
+
+        // --- 4. QUESTION CARD RENDERING ENGINE ENGINE ---
+        // Dynamically renders the active question, reflection notes, and colorized selection choices
+        function drawActiveQuestionCard() {
+            const q = masterQuestions[activeQuestionIndex];
+            const savedState = masterResponses[activeQuestionIndex];
+
+            // Renders sidebar headings depending on current evaluation block category
+            document.getElementById('sidebar-segment-title').innerText = q.segment === "LIFE" ? "Current Domain" : "Current Segment";
+            document.getElementById('question-context-label').innerText = q.segment === "LIFE" ? "How satisfied are you with...?" : "How often...?";
+            document.getElementById('domain-badge').innerText = q.category;
+            document.getElementById('question-text-display').innerText = q.prompt;
+            
+            // Computes step tracking numerical ratios
+            const targetTotalCount = q.segment === "LIFE" ? 24 : 12;
+            const absoluteActiveCounter = q.segment === "LIFE" ? (activeQuestionIndex + 1) : (activeQuestionIndex - 23);
+            document.getElementById('progress-text').innerText = `Question ${absoluteActiveCounter} of ${targetTotalCount}`;
+            document.getElementById('progress-bar').style.width = `${(absoluteActiveCounter / targetTotalCount) * 100}%`;
+
+            // Loads any previously saved thoughts into the text area
+            document.getElementById('musing-input').value = savedState.musing;
+
+            // Maps out the standard horizontal layout row grid buttons array elements matrix
+            let buttonsHtml = "";
+            q.textLabels.forEach((label, index) => {
+                const numericWeight = index + 1;
+                buttonsHtml += `<button onclick="captureChoiceWeight(${numericWeight}, '${label}')" id="btn-choice-${numericWeight}" class="border border-gray-200 rounded-xl py-3 px-1.5 text-center transition font-semibold text-xs cursor-pointer hover:bg-gray-50 text-gray-700">${label}</button>`;
+            });
+            document.getElementById('rating-buttons-grid').innerHTML = buttonsHtml;
+
+            // Highlights the active button if the user has already answered this question
+            if (savedState.score !== null) {
+                const buttonElement = document.getElementById(`btn-choice-${savedState.score}`);
+                if (buttonElement) {
+                    const styleClasses = {
+                        "Low": "bg-red-800 text-white border-red-900",
+                        "Medium-Low": "bg-red-100 text-red-800 border-red-200",
+                        "Medium": "bg-amber-100 text-amber-800 border-amber-200",
+                        "Medium-High": "bg-green-100 text-green-800 border-green-200",
+                        "High": "bg-green-800 text-white border-green-900",
+                        "Rarely-Never": "bg-green-800 text-white border-green-900",
+                        "Infrequently": "bg-green-100 text-green-800 border-green-200",
+                        "Sometimes": "bg-amber-100 text-amber-800 border-amber-200",
+                        "Frequently": "bg-red-100 text-red-800 border-red-200",
+                        "All-The-Time": "bg-red-800 text-white border-red-900"
+                    };
+                    const sanitizedColorKey = savedState.label.replace(/ \/ /g, '-').replace(/ /g, '-');
+                    buttonElement.className = `border rounded-xl py-3 px-1.5 text-center transition font-semibold text-xs cursor-pointer shadow-sm ${styleClasses[sanitizedColorKey]}`;
+                }
+            }
+
+            // Controls active status states validation parameters toggles logic variables
+            document.getElementById('prev-btn').disabled = activeQuestionIndex === 0;
+            document.getElementById('next-btn').innerText = activeQuestionIndex === masterQuestions.length - 1 ? "Compile Calculations" : "Next";
+        }
+
+        // Saves score selections and inputs into memory arrays
+        function captureChoiceWeight(weight, labelString) {
+            masterResponses[activeQuestionIndex].score = weight;
+            masterResponses[activeQuestionIndex].label = labelString;
+            masterResponses[activeQuestionIndex].musing = document.getElementById('musing-input').value;
+            drawActiveQuestionCard();
+        }
+
+        // Advances forward to next step in the pipeline chain
+        function processNextStep() {
+            masterResponses[activeQuestionIndex].musing = document.getElementById('musing-input').value;
+
+            if (masterResponses[activeQuestionIndex].score === null) {
+                alert("Please select a score rating choice before proceeding forward.");
+                return;
+            }
+
+            if (activeQuestionIndex < masterQuestions.length - 1) {
+                const activeCat = masterQuestions[activeQuestionIndex].category;
+                const upcomingCat = masterQuestions[activeQuestionIndex + 1].category;
+                activeQuestionIndex++;
+
+                if (activeCat !== upcomingCat) {
+                    evaluateTransitionTrigger();
+                } else {
+                    drawActiveQuestionCard();
+                }
+            } else {
+                executeCalculationsPipeline();
+            }
+        }
+
+        // Steps back to previous element records log entries sheet node
+        function processPreviousStep() {
+            masterResponses[activeQuestionIndex].musing = document.getElementById('musing-input').value;
+            if (activeQuestionIndex > 0) {
+                const activeCat = masterQuestions[activeQuestionIndex].category;
+                const historicalCat = masterQuestions[activeQuestionIndex - 1].category;
+                activeQuestionIndex--;
+
+                if (activeCat !== historicalCat) {
+                    viewedTransitions[activeCat] = false; 
+                }
+                drawActiveQuestionCard();
+            }
+        }
+
+        // --- 5. CALCULATION ENGINES & STATISTICAL ROUTERS ---
+
+        // Maps numbers into text descriptions based on score brackets
+        function locateStandardTextLabel(avgValue, isBurnoutMode = false) {
+            if(!isBurnoutMode) {
+                if (avgValue < 1.8) return "Low"; if (avgValue < 2.6) return "Medium-Low";
+                if (avgValue < 3.4) return "Medium"; if (avgValue < 4.2) return "Medium-High";
+                return "High";
+            } else {
+                if (avgValue < 1.8) return "Rarely-Never"; if (avgValue < 2.6) return "Infrequently";
+                if (avgValue < 3.4) return "Sometimes"; if (avgValue < 4.2) return "Frequently";
+                return "All-The-Time";
+            }
+        }
+
+        // Calculates scores across sections and saves standard outputs
+        function executeCalculationsPipeline() {
+            document.getElementById('assessment-container').style.display = 'none';
+            
+            const localDomainBuckets = { "Work": [], "Home": [], "External/Community": [], "Self": [] };
+            let burnoutWeightSum = 0;
+
+            masterResponses.forEach((res, index) => {
+                if (index < 24) {
+                    const domainKey = masterQuestions[index].category;
+                    localDomainBuckets[domainKey].push(res.score);
+                } else {
+                    burnoutWeightSum += res.score;
+                }
+            });
+
+            Object.keys(localDomainBuckets).forEach(key => {
+                const arr = localDomainBuckets[key];
+                const sum = arr.reduce((a,b) => a + b, 0);
+                debugScores[key] = sum / arr.length;
+            });
+
+            finalGlobalBurnoutAvg = burnoutWeightSum / 12;
+            finalGlobalLifeAvg = (debugScores["Work"] + debugScores["Home"] + debugScores["External/Community"] + debugScores["Self"]) / 4;
+
+            renderIndividualDomainsPage();
+        }
+
+        // Generates intermediate cards showing the 4 primary life categories
+        function renderIndividualDomainsPage() {
+            document.getElementById('app-phase-badge').innerText = "Life Domain Summary";
+            document.getElementById("domains-summary-screen").style.display = 'block';
+
+            let gridCardsHtml = "";
+            Object.keys(debugScores).forEach(domainName => {
+                const floatVal = debugScores[domainName];
+                const textWord = locateStandardTextLabel(floatVal, false);
+                const colorLabel = textWord.replace(' ', '-');
+
+                gridCardsHtml += `
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 text-left flex flex-col justify-between shadow-xs">
+                        <span class="text-xs uppercase font-bold text-gray-400 tracking-wider">${domainName} Domain</span>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="text-xs text-gray-500 font-medium">Calculated Rating:</span>
+                            <span class="px-3 py-1 text-xs font-bold rounded-full border score-${colorLabel}">${textWord} (${floatVal.toFixed(2)})</span>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById("domains-cards-injected-grid").innerHTML = gridCardsHtml;
+        }
+
+        // Prepares calculations layout arrays to launch graph plotting canvas sheets
+        function advanceFromDomainsToMatrixGrid() {
+            document.getElementById("domains-summary-screen").style.display = 'none';
+            document.getElementById("matrix-dashboard-screen").style.display = 'block';
+            
+            document.getElementById('app-phase-badge').className = "text-xs font-semibold uppercase tracking-wider bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full border border-indigo-200";
+            document.getElementById('app-phase-badge').innerText = "THRIVE Grid";
+
+            const lifeWordLabel = locateStandardTextLabel(finalGlobalLifeAvg, false);
+            const burnoutWordLabel = locateStandardTextLabel(finalGlobalBurnoutAvg, true);
+
+            const yBadge = document.getElementById('y-text-pill');
+            yBadge.innerText = `${lifeWordLabel} (${finalGlobalLifeAvg.toFixed(2)})`;
+            yBadge.className = `inline-block mt-2 px-4 py-1 text-sm font-bold rounded-full border score-${lifeWordLabel.replace(' ', '-')}`;
+
+            const xBadge = document.getElementById('x-text-pill');
+            const layoutDisplayLabel = burnoutWordLabel.replace('-', ' / ');
+            xBadge.innerText = `${layoutDisplayLabel} (${finalGlobalBurnoutAvg.toFixed(2)})`;
+            xBadge.className = `inline-block mt-2 px-4 py-1 text-sm font-bold rounded-full border score-${burnoutWordLabel.replace(' ', '-')}`;
+
+            executeCanvasPlotMatrixEngine("thriveCanvas");
+        }
+
+        // Resolves mapping locations coordinates fields index bounds loops
+        function resolveDiscreteCellIndex(val, isInvertedAxis = false) {
+            let baseIndex = 0;
+            if (val < 1.8) baseIndex = 0;
+            else if (val < 2.6) baseIndex = 1;
+            else if (val < 3.4) baseIndex = 2;
+            else if (val < 4.2) baseIndex = 3;
+            else baseIndex = 4;
+
+            return isInvertedAxis ? (4 - baseIndex) : baseIndex;
+        }
+
+        // --- 6. HTML5 CANVAS GRAPH PLOTTING MODULE ---
+        // Draws the colorful matrix board layout and calculates the blue marker star's pixel location
+        function executeCanvasPlotMatrixEngine(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return; const ctx = canvas.getContext("2d");
+            const w = canvas.width; const h = canvas.height;
+            const originX = 120; const padBottom = 40;
+            const gW = w - originX - 20; const gH = h - padBottom - 20; const topY = 20;
+            const cellW = gW / 5; const cellH = gH / 5;
+
+            ctx.clearRect(0, 0, w, h);
+            ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, w, h);
+
+            // Loops through grid coordinates and fills cells with assigned colors
+            for (let r = 0; r < 5; r++) {
+                for (let c = 0; c < 5; c++) {
+                    ctx.fillStyle = matrixColorLayout[r][c];
+                    ctx.fillRect(originX + (c * cellW), topY + (r * cellH), cellW, cellH);
+                    ctx.strokeStyle = "rgba(255,255,255,0.45)"; ctx.lineWidth = 1.5;
+                    ctx.strokeRect(originX + (c * cellW), topY + (r * cellH), cellW, cellH);
+                }
+            }
+            
+            ctx.strokeStyle = "#d1d5db"; ctx.lineWidth = 1.5; ctx.strokeRect(originX, topY, gW, gH);
+
+            // Renders textual values markings along both graph axes
+            ctx.fillStyle = "#6b7280"; ctx.font = "bold 11px sans-serif";
+            for (let r = 0; r < 5; r++) {
+                const txt = yLabels[4 - r]; ctx.fillText(txt, originX - 15 - ctx.measureText(txt).width, topY + (r * cellH) + (cellH / 2) + 4);
+            }
+            for (let c = 0; c < 5; c++) {
+                const txt = xLabels[c]; ctx.fillText(txt, originX + (c * cellW) + (cellW / 2) - (ctx.measureText(txt).width / 2), topY + gH + 20);
+            }
+            
+            // Calculates placement coordinates for user metrics positioning
+            const colIndex = resolveDiscreteCellIndex(finalGlobalBurnoutAvg, true);
+            const rowIndex = resolveDiscreteCellIndex(finalGlobalLifeAvg, false);
+            
+            const targetPixelX = originX + (colIndex * cellW) + (cellW / 2);
+            const targetPixelY = topY + ((4 - rowIndex) * cellH) + (cellH / 2);
+
+            // Draws vector marker onto computed canvas location
+            renderCanvasGeometricStarElement(ctx, targetPixelX, targetPixelY, 5, 14, 7, "#2563eb", "#1d4ed8");
+        }
+
+        // Mathematical helper path matrix configuration script drawing the graphic vector token shape
+        function renderCanvasGeometricStarElement(ctx, cx, cy, spikes, outerRadius, innerRadius, fillStyle, strokeStyle) {
+            let rot = Math.PI / 2 * 3; let step = Math.PI / spikes; ctx.beginPath(); ctx.moveTo(cx, cy - outerRadius);
+            for (let i = 0; i < spikes; i++) {
+                ctx.lineTo(cx + Math.cos(rot) * outerRadius, cy + Math.sin(rot) * outerRadius); rot += step;
+                ctx.lineTo(cx + Math.cos(rot) * innerRadius, cy + Math.sin(rot) * innerRadius); rot += step;
+            }
+            ctx.lineTo(cx, cy - outerRadius); ctx.closePath(); ctx.lineWidth = 1.5; ctx.strokeStyle = strokeStyle; ctx.fillStyle = fillStyle; ctx.fill(); strokeStyle && ctx.stroke();
+        }
+
+        // --- 7. STRATEGY BUILDING MODULE ---
+
+        // Loads strategy planning data tables and updates status tags
+        function advanceToPlannerSelection() {
+            document.getElementById('matrix-dashboard-screen').style.display = 'none';
+            document.getElementById('selection-screen').style.display = 'block';
+            document.getElementById('app-phase-badge').className = "text-xs font-semibold uppercase tracking-wider bg-sky-50 text-sky-700 px-3 py-1 rounded-full border border-sky-200";
+            document.getElementById('app-phase-badge').innerText = "Action Planning: Priority Selector";
+            generatePrioritySelectionTable();
+        }
+
+        // Populates tabular item listings with checkbox choices for target selection mapping
+        function generatePrioritySelectionTable() {
+            const tbody = document.getElementById("matrix-table-body");
+            let curDom = ""; let html = "";
+
+            lifeQuestions.forEach((item, idx) => {
+                if (item.category !== curDom) {
+                    curDom = item.category;
+                    html += `<tr class="bg-slate-50 border-y border-gray-200"><td colspan="4" class="p-3 text-xs font-black tracking-widest text-slate-700 font-mono">${curDom.toUpperCase()} DOMAIN</td></tr>`;
+                }
+
+                const labelWordText = debugActiveBypassMode ? locateStandardTextLabel(debugScores[item.category], false) : masterResponses[idx].label;
+                const cleanedClassString = labelWordText.replace(/ \/ /g, '-').replace(/ /g, '-');
+
+                html += `
+                    <tr class="border-b border-gray-100 hover:bg-slate-50/40 text-sm">
+                        <td class="p-4 text-gray-700 font-medium">${item.prompt}</td>
+                        <td class="p-4 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold border inline-block min-w-[110px] text-center badge-${cleanedClassString}">${labelWordText}</span>
+                        </td>
+                        <td class="p-4 text-center bg-emerald-50/10">
+                            <input type="checkbox" id="chk-p-${idx}" onclick="handlePriorityCheckboxClick(${idx}, 'PROTECT')" class="w-4 h-4 text-emerald-600 cursor-pointer">
+                        </td>
+                        <td class="p-4 text-center bg-red-50/10">
+                            <input type="checkbox" id="chk-a-${idx}" onclick="handlePriorityCheckboxClick(${idx}, 'ADDRESS')" class="w-4 h-4 text-red-600 cursor-pointer">
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // Enforces choice limits (Exactly 3 Protect items and 3 Address items)
+        function handlePriorityCheckboxClick(idx, structuralMode) {
+            if (structuralMode === 'PROTECT') {
+                const cb = document.getElementById(`chk-p-${idx}`);
+                if (cb.checked) {
+                    if (selectedProtectIds.length >= 3) { cb.checked = false; alert("Please select exactly 3 items to protect."); }
+                    else { selectedProtectIds.push(idx); document.getElementById(`chk-a-${idx}`).disabled = true; }
+                } else {
+                    selectedProtectIds = selectedProtectIds.filter(i => i !== idx); document.getElementById(`chk-a-${idx}`).disabled = false;
+                }
+            } else {
+                const cb = document.getElementById(`chk-a-${idx}`);
+                if (cb.checked) {
+                    if (selectedAddressIds.length >= 3) { cb.checked = false; alert("Please select exactly 3 opportunities to address."); }
+                    else { selectedAddressIds.push(idx); document.getElementById(`chk-p-${idx}`).disabled = true; }
+                } else {
+                    selectedAddressIds = selectedAddressIds.filter(i => i !== idx); document.getElementById(`chk-p-${idx}`).disabled = false;
+                }
+            }
+
+            document.getElementById("protect-counter").innerText = `Protect: ${selectedProtectIds.length} / 3 Selected`;
+            document.getElementById("address-counter").innerText = `Address: ${selectedAddressIds.length} / 3 Selected`;
+
+            // Unlocks focus workflow submit triggers once selection balances evaluate correctly
+            const btn = document.getElementById("start-planning-btn");
+            if (selectedProtectIds.length === 3 && selectedAddressIds.length === 3) {
+                btn.removeAttribute("disabled");
+                btn.className = "bg-sky-600 hover:bg-sky-700 text-white font-medium px-8 py-3 rounded-xl transition cursor-pointer shadow-sm";
+            } else {
+                btn.setAttribute("disabled", "true");
+                btn.className = "bg-gray-400 text-white font-medium px-8 py-3 rounded-xl transition shadow-sm cursor-not-allowed";
+            }
+        }
+
+        // Prepares action planning workflows by building unified reference indexes
+        function initiateActionSequencer() {
+            const protectTargets = selectedProtectIds.map(idx => ({ 
+                index: idx, 
+                prompt: masterQuestions[idx].prompt, 
+                category: masterQuestions[idx].category, 
+                label: debugActiveBypassMode ? locateStandardTextLabel(debugScores[masterQuestions[idx].category], false) : masterResponses[idx].label, 
+                type: "PROTECT" 
+            }));
+            
+            const addressTargets = selectedAddressIds.map(idx => ({ 
+                index: idx, 
+                prompt: masterQuestions[idx].prompt, 
+                category: masterQuestions[idx].category, 
+                label: debugActiveBypassMode ? locateStandardTextLabel(debugScores[masterQuestions[idx].category], false) : masterResponses[idx].label, 
+                type: "ADDRESS" 
+            }));
+
+            planningSequenceList = [...protectTargets, ...addressTargets].map(obj => ({
+                ...obj, actions: { immediate: "", short: "", medium: "", long: "" }
+            }));
+
+            document.getElementById("selection-screen").style.display = 'none';
+            document.getElementById("sequencer-screen").style.display = 'flex';
+            document.getElementById('app-phase-badge').innerText = "Action Planning";
+            runningSeqIdx = 0;
+            renderDynamicSequencerPage();
+        }
+
+        // populates text area input frameworks inside core action-sequencer wizard
+        function renderDynamicSequencerPage() {
+            const data = planningSequenceList[runningSeqIdx];
+            const badge = document.getElementById("seq-type-badge");
+
+            if (data.type === "PROTECT") {
+                badge.innerText = "Strategy: PROTECT STRONGHOLD";
+                badge.className = "text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border mb-3 bg-emerald-50 text-emerald-700 border-emerald-200";
+            } else {
+                badge.innerText = "Strategy: ADDRESS OPPORTUNITY";
+                badge.className = "text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border mb-3 bg-red-50 text-red-700 border-red-200";
+            }
+
+            document.getElementById("seq-domain").innerText = data.category;
+            document.getElementById("seq-progress-text").innerText = `Page ${runningSeqIdx + 1} of 6`;
+            document.getElementById("seq-progress-bar").style.width = `${((runningSeqIdx + 1) / 6) * 100}%`;
+            document.getElementById("seq-prompt-text").innerText = data.prompt;
+
+            document.getElementById("time-immediate").value = data.actions.immediate;
+            document.getElementById("time-short").value = data.actions.short;
+            document.getElementById("time-medium").value = data.actions.medium;
+            document.getElementById("time-long").value = data.actions.long;
+        }
+
+        // Saves sequencer text input entries into active tracking maps
+        function persistActiveSequencerFields() {
+            planningSequenceList[runningSeqIdx].actions.immediate = document.getElementById("time-immediate").value;
+            planningSequenceList[runningSeqIdx].actions.short = document.getElementById("time-short").value;
+            planningSequenceList[runningSeqIdx].actions.medium = document.getElementById("time-medium").value;
+            planningSequenceList[runningSeqIdx].actions.long = document.getElementById("time-long").value;
+        }
+
+        // Advances sequencer step pages loops
+        function advanceSequencerPage() {
+            persistActiveSequencerFields();
+            if (runningSeqIdx < 5) {
+                runningSeqIdx++;
+                renderDynamicSequencerPage();
+            } else {
+                document.getElementById("sequencer-screen").style.display = 'none';
+                initializeSummaryReviewDashboard("PROTECT");
+            }
+        }
+
+        // Steps back one page inside active sequencer wizards panels sheets
+        function backtrackSequencerPage() {
+            persistActiveSequencerFields();
+            if (runningSeqIdx > 0) {
+                runningSeqIdx--;
+                renderDynamicSequencerPage();
+            } else {
+                document.getElementById("sequencer-screen").style.display = 'none';
+                document.getElementById("selection-screen").style.display = 'block';
+            }
+        }
+
+        // Generates overall strategy review and text edit fields sheet summary
+        function initializeSummaryReviewDashboard(mode) {
+            activeSummaryFilter = mode;
+            document.getElementById("summary-review-screen").style.display = 'block';
+            document.getElementById('app-phase-badge').innerText = mode === "PROTECT" ? "Review" : "Review";
+
+            const title = document.getElementById("summary-screen-title");
+            const forwardBtn = document.getElementById("summary-forward-btn");
+            const container = document.getElementById("summary-cards-container");
+            const subsetList = planningSequenceList.filter(o => o.type === mode);
+
+            if (mode === "PROTECT") {
+                title.innerText = "Reviewing the Pillars to Protect (Positives)";
+                forwardBtn.innerText = "Looks Great, Next: Review Opportunities";
+            } else {
+                title.innerText = "Reviewing Areas to Address (Opportunities)";
+                forwardBtn.innerText = "Lock Action Plan & Compile Final Blueprint";
+            }
+
+            let cardsHtml = "";
+            subsetList.forEach(item => {
+                const cleanedClassString = item.label.replace(/ \/ /g, '-').replace(/ /g, '-');
+                cardsHtml += `
+                    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
+                        <div class="flex justify-between items-start border-b border-gray-100 pb-3">
+                            <div>
+                                <span class="text-xs font-bold font-mono tracking-wider text-slate-400 block">${item.category.toUpperCase()} DOMAIN</span>
+                                <h3 class="text-base font-bold text-gray-800">${item.prompt}</h3>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold border badge-${cleanedClassString}">${item.label}</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">⚡ Immediate Action (24h)</label>
+                                <textarea onchange="syncInlineEditValue(${item.index}, 'immediate', this.value)" rows="2" class="w-full border border-gray-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none">${item.actions.immediate}</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">📅 Short Term (Days/Weeks)</label>
+                                <textarea onchange="syncInlineEditValue(${item.index}, 'short', this.value)" rows="2" class="w-full border border-gray-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none">${item.actions.short}</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">⛰️ Medium Term (Weeks/Months)</label>
+                                <textarea onchange="syncInlineEditValue(${item.index}, 'medium', this.value)" rows="2" class="w-full border border-gray-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none">${item.actions.medium}</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">🚀 Long Term (Months/Years)</label>
+                                <textarea onchange="syncInlineEditValue(${item.index}, 'long', this.value)" rows="2" class="w-full border border-gray-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none">${item.actions.long}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = cardsHtml;
+        }
+
+        // Live synchronizes text alterations performed inside dashboard audit field sheets
+        function syncInlineEditValue(masterIndex, timeKey, txtVal) {
+            const match = planningSequenceList.find(o => o.index === masterIndex);
+            if (match) match.actions[timeKey] = txtVal;
+        }
+
+        // Routes review card flows between positive and negative focus blocks
+        function processSummaryAdvance() {
+            if (activeSummaryFilter === "PROTECT") {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                initializeSummaryReviewDashboard("ADDRESS");
+            } else {
+                document.getElementById("summary-review-screen").style.display = 'none';
+                document.getElementById("finish-screen").style.display = 'block';
+                buildHiddenPrintTemplate();
+            }
+        }
+
+        // --- 8. FILE DATA EXPORT & SNAPSHOT RESTORE MODULE ---
+
+        // Packages the current session data into a downloadable JSON backup snapshot file
+        function executeProgressExport() {
+            const pack = { finalGlobalLifeAvg: finalGlobalLifeAvg, finalGlobalBurnoutAvg: finalGlobalBurnoutAvg, debugScores: debugScores, masterResponses: masterResponses, debugActiveBypassMode: debugActiveBypassMode };
+            const blob = new Blob([JSON.stringify(pack)], { type: "application/json" });
+            const anchor = document.createElement("a");
+            anchor.href = URL.createObjectURL(blob); anchor.download = "THRIVE_Assessment_Progress_Data.json";
+            document.body.appendChild(anchor); anchor.click(); document.body.removeChild(anchor);
+        }
+
+        // Restores and loads a previously exported JSON backup snapshot file
+        function executeProgressImport(event) {
+            const file = event.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    finalGlobalLifeAvg = parsed.finalGlobalLifeAvg; finalGlobalBurnoutAvg = parsed.finalGlobalBurnoutAvg;
+                    debugScores = parsed.debugScores; masterResponses = parsed.masterResponses;
+                    debugActiveBypassMode = parsed.debugActiveBypassMode || false;
+                    document.getElementById('welcome-screen').style.display = 'none';
+                    advanceToPlannerSelection();
+                } catch (err) { alert("Invalid data snapshot file layout format."); }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- 9. DOCUMENT EXPORT TEMPLATE PACKS PRINT COMPILER ---
+        // Compiles and formats a hidden HTML print layout for clean conversion into a PDF blueprint file
+        function buildHiddenPrintTemplate() {
+            const root = document.getElementById("pdf-printing-template");
+            let lifeWordLabel = locateStandardTextLabel(finalGlobalLifeAvg, false);
+            let burnoutWordLabel = locateStandardTextLabel(finalGlobalBurnoutAvg, true);
+
+            let html = `
+                <div style="font-family: sans-serif; color: #1f2937;">
+                    <div style="border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 30px; text-align: center;">
+                        <h1 style="font-size: 28px; margin-bottom: 5px; font-weight: bold; color: #111827;">Your THRIVE Experience</h1>
+                        <p style="font-size: 14px; color: #6b7280; margin: 0;">Summary Document</p>
+                    </div>
+                    <div style="margin-bottom: 30px; background: #f9fafb; border: 1px solid #e5e7eb; padding: 20px; border-radius: 12px;">
+                        <h2 style="font-size: 15px; font-weight: bold; margin-top: 0; margin-bottom: 12px; color: #374151; text-transform: uppercase;">Plotting Your Scores on the THRIVE Grid</h2>
+                        <p style="font-size: 13px; margin: 5px 0;"><strong>Vertical: Four Life Domain Satisfaction Average:</strong> ${lifeWordLabel} (${finalGlobalLifeAvg.toFixed(2)})</p>
+                        <p style="font-size: 13px; margin: 5px 0;"><strong>Horizontal: Burnout Symptoms:</strong> ${burnoutWordLabel.replace('-', ' / ')} (${finalGlobalBurnoutAvg.toFixed(2)})</p>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 40px; background: #ffffff; padding: 15px; border: 1px solid #e5e7eb; border-radius: 12px; display: flex; flex-direction: column; items: center;">
+                        <canvas id="pdfThriveCanvas" width="560" height="430" style="max-w-full; height: auto; border: 1px solid #f3f4f6; border-radius: 8px;"></canvas>
+                    </div>
+            `;
+
+            html += `
+                <div style="page-break-after: always;"></div>
+                <h2 style="font-size: 18px; font-weight: bold; color: #111827; border-bottom: 1px solid #f3f4f6; padding-bottom: 8px; margin-bottom: 20px;">1. Your Personalized Implementation Roadmap</h2>
+            `;
+            ["PROTECT", "ADDRESS"].forEach(filterKey => {
+                const targetSubset = planningSequenceList.filter(o => o.type === filterKey);
+                const sectionHeader = filterKey === "PROTECT" ? "Protected Strongholds (Positive Pillars)" : "Opportunities to Address (Growth Areas)";
+                html += `<h3 style="font-size: 14px; font-weight: bold; color: #374151; background: #f3f4f6; padding: 8px 12px; border-radius: 6px; margin-top: 25px; margin-bottom: 15px;">${sectionHeader}</h3>`;
+                targetSubset.forEach(item => {
+                    html += `
+                        <div style="margin-bottom: 20px; border: 1px solid #e5e7eb; padding: 15px; border-radius: 10px; background: #ffffff; page-break-inside: avoid;">
+                            <h4 style="font-size: 13px; font-weight: bold; color: #111827; margin: 0 0 8px 0;">${item.prompt} (${item.category})</h4>
+                            <div style="display: flex; flex-direction: column; gap: 6px; font-size: 12px;">
+                                <p style="margin: 0;"><strong style="color: #4b5563;">⚡ Immediate (24h):</strong> ${item.actions.immediate ? item.actions.immediate : 'None listed.'}</p>
+                                <p style="margin: 0;"><strong style="color: #4b5563;">📅 Short Term (Days/Weeks):</strong> ${item.actions.short ? item.actions.short : 'None listed.'}</p>
+                                <p style="margin: 0;"><strong style="color: #4b5563;">⛰️ Medium Term (Weeks/Months):</strong> ${item.actions.medium ? item.actions.medium : 'None listed.'}</p>
+                                <p style="margin: 0;"><strong style="color: #4b5563;">🚀 Long Term (Months/Years):</strong> ${item.actions.long ? item.actions.long : 'None listed.'}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+
+            // Appends response audit log context to track downstream progress deltas
+            if(!debugActiveBypassMode) {
+                html += `
+                    <div style="page-break-after: always;"></div>
+                    <h2 style="font-size: 18px; font-weight: bold; color: #111827; border-bottom: 1px solid #f3f4f6; padding-bottom: 8px; margin-bottom: 20px;">2: Questionnaire Input Log</h2>
+                    <p style="font-size: 12px; color: #6b7280; margin-bottom: 20px; font-style: italic;">Retain this as a baseline to track downstream progress when re-evaluating in the future.</p>
+                `;
+                masterQuestions.forEach((item, idx) => {
+                    const ans = masterResponses[idx];
+                    html += `
+                        <div style="margin-bottom: 20px; background: #ffffff; border: 1px solid #f3f4f6; padding: 12px; border-radius: 8px; page-break-inside: avoid;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 10px; font-weight: bold; color: #9ca3af; text-transform: uppercase;"><span>${item.category}</span><span>Score: ${ans.label}</span></div>
+                            <p style="font-size: 13px; font-weight: bold; color: #111827; margin: 0 0 6px 0;">${item.prompt}</p>
+                            <div style="background: #fafafa; border-left: 3px solid #e5e7eb; padding: 8px;">
+                                <span style="font-size: 10px; font-weight: bold; color: #6b7280; display: block; margin-bottom: 2px;">Your Reflection Notes:</span>
+                                <p style="font-size: 12px; color: #4b5563; font-style: italic; margin: 0; white-space: pre-wrap;">${ans.musing ? ans.musing : 'No written notes provided.'}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            html += `</div>`; root.innerHTML = html;
+            executeCanvasPlotMatrixEngine("pdfThriveCanvas");
+        }
+
+        // Compiles data structures and triggers browser file generation package commands
+        function executePDFGenerationEngine() {
+            buildHiddenPrintTemplate();
+            const targetElement = document.getElementById("pdf-printing-template");
+            html2pdf().set({
+                margin: [0.5, 0.5, 0.5, 0.5], filename: 'My_THRIVE_Master_Blueprint.pdf',
+                image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, logging: false },
+                pagebreak: { mode: ['avoid-all'] },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            }).from(targetElement).save();
+        }
+    </script>
+</body>
+</html>
