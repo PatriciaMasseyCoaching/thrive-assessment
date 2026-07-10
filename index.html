@@ -179,7 +179,7 @@
                 </div>
             </div>
 
-            <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
@@ -721,16 +721,16 @@
                 const labelWordText = debugActiveBypassMode ? locateStandardTextLabel(debugScores[item.category], false) : masterResponses[idx].label;
                 const cleanedClassString = labelWordText.replace(/ \/ /g, '-').replace(/ /g, '-');
 
-                html += `
+              html += `
                     <tr class="border-b border-gray-100 hover:bg-slate-50/40 text-sm">
-                        <td class="p-4 text-gray-700 font-medium">${item.prompt}</td>
+                        <td class="p-4 text-gray-700 font-medium min-w-[240px]">${item.prompt}</td>
                         <td class="p-4 text-center">
                             <span class="px-2.5 py-1 rounded-full text-xs font-bold border inline-block min-w-[110px] text-center badge-${cleanedClassString}">${labelWordText}</span>
                         </td>
-                        <td class="p-4 text-center bg-emerald-50/10">
+                        <td class="p-4 text-center bg-emerald-50/10 min-w-[90px]">
                             <input type="checkbox" id="chk-p-${idx}" onclick="handlePriorityCheckboxClick(${idx}, 'PROTECT')" class="w-4 h-4 text-emerald-600 cursor-pointer">
                         </td>
-                        <td class="p-4 text-center bg-red-50/10">
+                        <td class="p-4 text-center bg-red-50/10 min-w-[90px]">
                             <input type="checkbox" id="chk-a-${idx}" onclick="handlePriorityCheckboxClick(${idx}, 'ADDRESS')" class="w-4 h-4 text-red-600 cursor-pointer">
                         </td>
                     </tr>
