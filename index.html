@@ -836,6 +836,24 @@
                 musingBox.style.display = "none"; // Hide box cleanly if they left it blank
             }
 		}
+		// --- DYNAMIC COACHING PROMPTS FOR PLACEHOLDERS ---
+            const immediateInput = document.getElementById("time-immediate");
+            const shortInput = document.getElementById("time-short");
+            const mediumInput = document.getElementById("time-medium");
+            const longInput = document.getElementById("time-long");
+
+            if (data.type === "PROTECT") {
+                immediateInput.placeholder = "What micro-action can you take tomorrow to explicitly acknowledge, celebrate, or maintain this area of strength?";
+                shortInput.placeholder = "What boundary, routine, or relationship check-in will ensure this pillar stays healthy and insulated from stress?";
+                mediumInput.placeholder = "How can you intentionally leverage this strength to support other areas of your life that need attention?";
+                longInput.placeholder = "Looking ahead, what macro structural milestones or choices will ensure this remains a centerpiece of your world?";
+            } else {
+                // Strategic prompts customized for addressing problematic growth areas
+                immediateInput.placeholder = "What is one micro-step you can execute in the next 24 hours to break stagnation and create momentum?";
+                shortInput.placeholder = "What near-term course adjustments, quick structural adjustments, or conversations will give you immediate relief?";
+                mediumInput.placeholder = "What new habits, routine resets, or pattern changes can you build over the next few months to reverse this trend?";
+                longInput.placeholder = "What long-range macro shifts, milestone resets, or life pivots will permanently transform this part of your experience?";
+            }
 
         // Saves sequencer text input entries into active tracking maps
         function persistActiveSequencerFields() {
