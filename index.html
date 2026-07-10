@@ -980,7 +980,7 @@
             let html = `
                 <div style="font-family: sans-serif; color: #1f2937;">
                     <div style="border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 30px; text-align: center;">
-                        <h1 style="font-size: 28px; margin-bottom: 5px; font-weight: bold; color: #111827;">Your THRIVE Experience</h1>
+                        <h1 style="font-size: 28px; margin-bottom: 5px; font-weight: bold; color: #111827;">Your THRIVE Assessment</h1>
                         <p style="font-size: 14px; color: #6b7280; margin: 0;">Summary Document</p>
                     </div>
                     <div style="margin-bottom: 30px; background: #f9fafb; border: 1px solid #e5e7eb; padding: 20px; border-radius: 12px;">
@@ -994,9 +994,11 @@
             `;
 
             html += `
-                <div style="page-break-after: always;"></div>
+                <!-- Forces a clean page break before Section 1 starts -->
+                <div class="html2pdf__page-break"></div>
                 <h2 style="font-size: 18px; font-weight: bold; color: #111827; border-bottom: 1px solid #f3f4f6; padding-bottom: 8px; margin-bottom: 20px;">1. Your Personalized Implementation Roadmap</h2>
             `;
+			
             ["PROTECT", "ADDRESS"].forEach(filterKey => {
                 const targetSubset = planningSequenceList.filter(o => o.type === filterKey);
                 const sectionHeader = filterKey === "PROTECT" ? "Protected Strongholds (Positive Pillars)" : "Opportunities to Address (Growth Areas)";
@@ -1049,7 +1051,7 @@
             html2pdf().set({
                 margin: [0.5, 0.5, 0.5, 0.5], filename: 'My_THRIVE_Master_Blueprint.pdf',
                 image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, logging: false },
-                pagebreak: { mode: ['avoid-all'] },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             }).from(targetElement).save();
         }
