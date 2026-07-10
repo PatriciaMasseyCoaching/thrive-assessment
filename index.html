@@ -234,22 +234,22 @@
 
                 <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                     <label class="block text-sm font-bold text-gray-800 uppercase tracking-wide mb-2">⚡ Immediate Action (Next 24 Hours)</label>
-                    <textarea id="time-immediate" rows="2" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder="What is one micro-step you can execute in the next 24 hours?"></textarea>
+                    <textarea id="time-immediate" rows="2" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder=""></textarea>
                 </div>
 
                 <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                     <label class="block text-sm font-bold text-gray-800 uppercase tracking-wide mb-2">📅 Short Term Action (Days to Weeks)</label>
-                    <textarea id="time-short" rows="2" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder="Near-term course adjustments..."></textarea>
+                    <textarea id="time-short" rows="2" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder=""></textarea>
                 </div>
 
                 <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                     <label class="block text-sm font-bold text-gray-800 uppercase tracking-wide mb-2">⛰️ Medium Term Action (Weeks to Months)</label>
-                    <textarea id="time-medium" rows="2" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder="Habit design changes..."></textarea>
+                    <textarea id="time-medium" rows="2" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder=""></textarea>
                 </div>
 
                 <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                     <label class="block text-sm font-bold text-gray-800 uppercase tracking-wide mb-2">🚀 Long Term Action (Months to Years)</label>
-                    <textarea id="time-long" rows="3" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder="Macro structural milestone pivots..."></textarea>
+                    <textarea id="time-long" rows="3" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder=""></textarea>
                 </div>
             </div>
         </div>
@@ -822,21 +822,12 @@
             document.getElementById("seq-progress-bar").style.width = `${((runningSeqIdx + 1) / 6) * 100}%`;
             document.getElementById("seq-prompt-text").innerText = data.prompt;
 
-            document.getElementById("time-immediate").value = data.actions.immediate;
-            document.getElementById("time-short").value = data.actions.short;
-            document.getElementById("time-medium").value = data.actions.medium;
-            document.getElementById("time-long").value = data.actions.long;
-        // --- ADD THIS BLOCK TO DYNAMICALLY POPULATE THE REFLECTIONS BOX ---
-            const musingBox = document.getElementById("seq-musing-box");
-            const musingText = document.getElementById("seq-musing-text");
-            if (data.musing && data.musing.trim() !== "") {
-                musingText.innerText = data.musing;
-                musingBox.style.display = "block";
-            } else {
-                musingBox.style.display = "none"; // Hide box cleanly if they left it blank
-            }
-		}
-		// --- DYNAMIC COACHING PROMPTS FOR PLACEHOLDERS ---
+            document.getElementById("time-immediate").value = data.actions.immediate ||"";
+            document.getElementById("time-short").value = data.actions.short ||"";
+            document.getElementById("time-medium").value = data.actions.medium ||"";
+            document.getElementById("time-long").value = data.actions.long ||"";
+        
+// --- DYNAMIC COACHING PROMPTS FOR PLACEHOLDERS ---
             const immediateInput = document.getElementById("time-immediate");
             const shortInput = document.getElementById("time-short");
             const mediumInput = document.getElementById("time-medium");
@@ -854,6 +845,19 @@
                 mediumInput.placeholder = "What new habits, routine resets, or pattern changes can you build over the next few months to reverse this trend?";
                 longInput.placeholder = "What long-range macro shifts, milestone resets, or life pivots will permanently transform this part of your experience?";
             }
+
+			
+			// --- ADD THIS BLOCK TO DYNAMICALLY POPULATE THE REFLECTIONS BOX ---
+            const musingBox = document.getElementById("seq-musing-box");
+            const musingText = document.getElementById("seq-musing-text");
+            if (data.musing && data.musing.trim() !== "") {
+                musingText.innerText = data.musing;
+                musingBox.style.display = "block";
+            } else {
+                musingBox.style.display = "none"; // Hide box cleanly if they left it blank
+            }
+		}
+	
 
         // Saves sequencer text input entries into active tracking maps
         function persistActiveSequencerFields() {
