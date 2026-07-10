@@ -225,7 +225,12 @@
                 <div class="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
                     <span class="text-xs font-bold text-sky-600 uppercase tracking-wider block mb-1">Focus Area:</span>
                     <h2 id="seq-prompt-text" class="text-xl font-bold text-gray-900 leading-snug">Loading Prompt...</h2>
-                </div>
+<!-- Added container for Musings -->
+                    <div id="seq-musing-box" class="mt-4 p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm text-gray-600 italic">
+                        <strong class="text-xs font-bold uppercase tracking-wider text-slate-400 not-italic block mb-1">Your Reflections:</strong>
+                        <span id="seq-musing-text"></span>
+                    </div>
+				</div>
 
                 <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                     <label class="block text-sm font-bold text-gray-800 uppercase tracking-wide mb-2">⚡ Immediate Action (Next 24 Hours)</label>
@@ -775,7 +780,8 @@
                 prompt: masterQuestions[idx].prompt, 
                 category: masterQuestions[idx].category, 
                 label: debugActiveBypassMode ? locateStandardTextLabel(debugScores[masterQuestions[idx].category], false) : masterResponses[idx].label, 
-                type: "PROTECT" 
+				musing: masterResponses[idx].musing, // <-- ADD THIS LINE
+				type: "PROTECT" 
             }));
             
             const addressTargets = selectedAddressIds.map(idx => ({ 
@@ -783,7 +789,8 @@
                 prompt: masterQuestions[idx].prompt, 
                 category: masterQuestions[idx].category, 
                 label: debugActiveBypassMode ? locateStandardTextLabel(debugScores[masterQuestions[idx].category], false) : masterResponses[idx].label, 
-                type: "ADDRESS" 
+                musing: masterResponses[idx].musing, // <-- ADD THIS LINE
+				type: "ADDRESS" 
             }));
 
             planningSequenceList = [...protectTargets, ...addressTargets].map(obj => ({
@@ -819,7 +826,16 @@
             document.getElementById("time-short").value = data.actions.short;
             document.getElementById("time-medium").value = data.actions.medium;
             document.getElementById("time-long").value = data.actions.long;
-        }
+        // --- ADD THIS BLOCK TO DYNAMICALLY POPULATE THE REFLECTIONS BOX ---
+            const musingBox = document.getElementById("seq-musing-box");
+            const musingText = document.getElementById("seq-musing-text");
+            if (data.musing && data.musing.trim() !== "") {
+                musingText.innerText = data.musing;
+                musingBox.style.display = "block";
+            } else {
+                musingBox.style.display = "none"; // Hide box cleanly if they left it blank
+            }
+		}
 
         // Saves sequencer text input entries into active tracking maps
         function persistActiveSequencerFields() {
