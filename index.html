@@ -988,8 +988,56 @@
                         <p style="font-size: 13px; margin: 5px 0;"><strong>Vertical: Four Life Domain Satisfaction Average:</strong> ${lifeWordLabel} (${finalGlobalLifeAvg.toFixed(2)})</p>
                         <p style="font-size: 13px; margin: 5px 0;"><strong>Horizontal: Burnout Symptoms:</strong> ${burnoutWordLabel.replace('-', ' / ')} (${finalGlobalBurnoutAvg.toFixed(2)})</p>
                     </div>
-                    <div style="text-align: center; margin-bottom: 40px; background: #ffffff; padding: 15px; border: 1px solid #e5e7eb; border-radius: 12px; display: flex; flex-direction: column; items: center;">
-                        <canvas id="pdfThriveCanvas" width="560" height="430" style="max-w-full; height: auto; border: 1px solid #f3f4f6; border-radius: 8px;"></canvas>
+                   <div style="text-align: center; margin-bottom: 40px; background: #ffffff; padding: 15px; border: 1px solid #e5e7eb; border-radius: 12px; display: flex; flex-direction: column; items: center;">
+                        <div style="position: relative; width: 560px; height: 430px; border: 1px solid #e5e7eb; border-radius: 8px; font-family: sans-serif; background: #ffffff;">
+                            
+                            <div style="position: absolute; left: 0; top: 20px; width: 105px; height: 370px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; padding-right: 15px; box-sizing: border-box; font-size: 11px; font-weight: bold; color: #6b7280;">
+                                <div style="height: 74px; display: flex; align-items: center;">High</div>
+                                <div style="height: 74px; display: flex; align-items: center;">Medium High</div>
+                                <div style="height: 74px; display: flex; align-items: center;">Medium</div>
+                                <div style="height: 74px; display: flex; align-items: center;">Medium Low</div>
+                                <div style="height: 74px; display: flex; align-items: center;">Low</div>
+                            </div>
+
+                            <div style="position: absolute; left: 120px; top: 20px; width: 420px; height: 370px; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); border: 1.5px solid #d1d5db; box-sizing: border-box;">
+                                <div style="background: #ffd966; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #f8f274; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #6aa84f; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #38761d; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #38761d; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #ff9900; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #ffd966; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #f8f274; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #6aa84f; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #38761d; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #cc0000; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #ff9900; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #ffd966; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #f8f274; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #6aa84f; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #990000; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #cc0000; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #ff9900; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #ffd966; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #f8f274; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #990000; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #990000; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #cc0000; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #ff9900; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                                <div style="background: #ffd966; border: 0.5px solid rgba(255,255,255,0.45);"></div>
+                            </div>
+
+                            <div style="position: absolute; left: ${120 + (resolveDiscreteCellIndex(finalGlobalBurnoutAvg, true) * 84) + 42 - 12}px; top: ${20 + ((4 - resolveDiscreteCellIndex(finalGlobalLifeAvg, false)) * 74) + 37 - 12}px; width: 24px; height: 24px; pointer-events: none; line-height: 24px; font-size: 26px; color: #2563eb; text-shadow: 0px 0px 3px #1d4ed8;">★</div>
+
+                            <div style="position: absolute; left: 120px; top: 395px; width: 420px; height: 20px; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; color: #6b7280; box-sizing: border-box;">
+                                <div style="width: 84px; text-align: center;">All The Time</div>
+                                <div style="width: 84px; text-align: center;">Frequently</div>
+                                <div style="width: 84px; text-align: center;">Sometimes</div>
+                                <div style="width: 84px; text-align: center;">Infrequently</div>
+                                <div style="width: 84px; text-align: center;">Rarely / Never</div>
+                            </div>
+
+                        </div>
                     </div>
             `;
 
