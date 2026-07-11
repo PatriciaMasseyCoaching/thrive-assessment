@@ -200,59 +200,61 @@
             </div>
         </div>
 
-        <div id="sequencer-screen" style="display: none;" class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="md:col-span-1">
-                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm sticky top-6">
-                    <span id="seq-type-badge" class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border inline-block mb-3">-</span>
-                    <h3 id="seq-domain" class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">-</h3>
-                    <div class="space-y-2 mb-6">
-                        <div class="flex justify-between text-xs font-medium text-gray-500">
-                            <span>Blueprint Progress</span>
-                            <span id="seq-progress-text">Page 1 of 6</span>
-                        </div>
-                        <div class="w-full bg-gray-100 rounded-full h-2">
-                            <div id="seq-progress-bar" class="bg-sky-600 h-2 rounded-full transition-all duration-300" style="width: 16%"></div>
-                        </div>
-                    </div>
-                    <div class="border-t border-gray-100 pt-4 flex gap-3">
-                        <button onclick="backtrackSequencerPage()" class="w-1/2 border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded-xl hover:bg-gray-50 transition cursor-pointer">Back</button>
-                        <button onclick="advanceSequencerPage()" class="w-1/2 bg-sky-600 hover:bg-sky-700 text-white font-medium py-2 px-4 rounded-xl transition cursor-pointer">Save & Next</button>
-                    </div>
+<div id="sequencer-screen" style="display: none;" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    
+    <div class="md:col-span-1 md:order-2">
+        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm sticky top-6">
+            <span id="seq-type-badge" class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border inline-block mb-3">-</span>
+            <h3 id="seq-domain" class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">-</h3>
+            <div class="space-y-2 mb-6">
+                <div class="flex justify-between text-xs font-medium text-gray-500">
+                    <span>Blueprint Progress</span>
+                    <span id="seq-progress-text">Page 1 of 6</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-2">
+                    <div id="seq-progress-bar" class="bg-sky-600 h-2 rounded-full transition-all duration-300" style="width: 16%"></div>
                 </div>
             </div>
-
-            <div class="md:col-span-2 space-y-6">
-                <div class="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
-                    <span class="text-xs font-bold text-sky-600 uppercase tracking-wider block mb-1">Focus Area:</span>
-                    <h2 id="seq-prompt-text" class="text-xl font-bold text-gray-900 leading-snug">Loading Prompt...</h2>
-<!-- Added container for Musings -->
-                    <div id="seq-musing-box" class="mt-4 p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm text-gray-600 italic">
-                        <strong class="text-xs font-bold uppercase tracking-wider text-slate-400 not-italic block mb-1">Your Reflections:</strong>
-                        <span id="seq-musing-text"></span>
-                    </div>
-				</div>
-
-                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-                    <label class="block text-sm font-bold text-gray-800 uppercase tracking-wide mb-2">⚡ Immediate Action (Next 24 Hours)</label>
-                    <textarea id="time-immediate" rows="2" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder=""></textarea>
-                </div>
-
-                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-                    <label class="block text-sm font-bold text-gray-800 uppercase tracking-wide mb-2">📅 Short Term Action (Days to Weeks)</label>
-                    <textarea id="time-short" rows="2" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder=""></textarea>
-                </div>
-
-                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-                    <label class="block text-sm font-bold text-gray-800 uppercase tracking-wide mb-2">⛰️ Medium Term Action (Weeks to Months)</label>
-                    <textarea id="time-medium" rows="2" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder=""></textarea>
-                </div>
-
-                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-                    <label class="block text-sm font-bold text-gray-800 uppercase tracking-wide mb-2">🚀 Long Term Action (Months to Years)</label>
-                    <textarea id="time-long" rows="3" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder=""></textarea>
-                </div>
+            <div class="border-t border-gray-100 pt-4 flex gap-3">
+                <button onclick="backtrackSequencerPage()" class="w-1/2 border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded-xl hover:bg-gray-50 transition cursor-pointer">Back</button>
+                <button onclick="advanceSequencerPage()" class="w-1/2 bg-sky-600 hover:bg-sky-700 text-white font-medium py-2 px-4 rounded-xl transition cursor-pointer">Save & Next</button>
             </div>
         </div>
+    </div>
+
+    <div class="md:col-span-2 md:order-1 space-y-6">
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
+            <span class="text-xs font-bold text-sky-600 tracking-wider uppercase block mb-1">Focus Area:</span>
+            <h2 id="seq-prompt-text" class="text-xl font-bold text-gray-900 leading-snug">Loading Prompt...</h2>
+            
+            <div id="seq-musing-box" class="mt-4 p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm text-gray-600 italic">
+                <strong class="text-xs font-bold uppercase tracking-wider text-slate-400 not-italic block mb-1">Your Reflections:</strong>
+                <span id="seq-musing-text"></span>
+            </div>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <label class="block text-sm font-bold text-gray-800 uppercase tracking-wide mb-2">⚡ Immediate Action (Next 24 Hours)</label>
+            <textarea id="time-immediate" rows="3" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder=""></textarea>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <label class="block text-sm font-bold text-gray-800 uppercase tracking-wide mb-2">📅 Short Term Action (Days to Weeks)</label>
+            <textarea id="time-short" rows="3" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder=""></textarea>
+                </div>
+
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <label class="block text-sm font-bold text-gray-800 uppercase tracking-wide mb-2">⛰️ Medium Term Action (Weeks to Months)</label>
+            <textarea id="time-medium" rows="3" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder=""></textarea>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <label class="block text-sm font-bold text-gray-800 uppercase tracking-wide mb-2">🚀 Long Term Action (Months to Years)</label>
+            <textarea id="time-long" rows="4" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none text-sm" placeholder=""></textarea>
+        </div>
+    </div>
+
+</div>
 
         <div id="summary-review-screen" style="display: none;" class="space-y-6">
             <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
