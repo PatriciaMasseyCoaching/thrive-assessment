@@ -835,7 +835,7 @@
 
             if (data.type === "PROTECT") {
                 immediateInput.placeholder = "What can you do today/tomorrow to explicitly acknowledge, celebrate, or maintain this area of strength?";
-                shortInput.placeholder = "What routine should you re-commit to, to ensure this pillar stays healthy and insulated from stress?";
+                shortInput.placeholder = "What routine should you re-commit to, to ensure this area stays healthy and insulated from stress?";
                 mediumInput.placeholder = "How can you intentionally leverage this strength to support other areas of your life that need attention?";
                 longInput.placeholder = "Looking ahead, what goals or milestones do you want to set that will ensure this remains a centerpiece of your world?";
             } else {
@@ -903,7 +903,7 @@
             const subsetList = planningSequenceList.filter(o => o.type === mode);
 
             if (mode === "PROTECT") {
-                title.innerText = "Reviewing the Pillars to Protect (Positives)";
+                title.innerText = "Reviewing the Areas to Protect (Positives)";
                 forwardBtn.innerText = "Looks Great, Next: Review Opportunities";
             } else {
                 title.innerText = "Reviewing Areas to Address (Opportunities)";
@@ -1071,7 +1071,7 @@
 			
             ["PROTECT", "ADDRESS"].forEach(filterKey => {
                 const targetSubset = planningSequenceList.filter(o => o.type === filterKey);
-                const sectionHeader = filterKey === "PROTECT" ? "Protected Strongholds (Positive Pillars)" : "Opportunities to Address (Growth Areas)";
+                const sectionHeader = filterKey === "PROTECT" ? "Protected Strongholds (Positive Areas)" : "Opportunities to Address (Growth Areas)";
                 html += `<h3 style="font-size: 14px; font-weight: bold; color: #374151; background: #f3f4f6; padding: 8px 12px; border-radius: 6px; margin-top: 25px; margin-bottom: 15px;">${sectionHeader}</h3>`;
                 targetSubset.forEach(item => {
                     html += `
