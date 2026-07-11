@@ -433,7 +433,7 @@
         // Displays the standard quiz interface box sheet
         function proceedToActiveQuestions() {
             document.getElementById('transition-screen').style.display = 'none';
-            document.getElementById('assessment-container').style.display = 'flex';
+            document.getElementById('assessment-container').style.display = 'grid';
             drawActiveQuestionCard();
         }
 
@@ -798,7 +798,7 @@
             }));
 
             document.getElementById("selection-screen").style.display = 'none';
-            document.getElementById("sequencer-screen").style.display = 'flex';
+            document.getElementById("sequencer-screen").style.display = 'grid';
             document.getElementById('app-phase-badge').innerText = "Action Planning";
             runningSeqIdx = 0;
             renderDynamicSequencerPage();
