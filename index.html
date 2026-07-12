@@ -136,8 +136,9 @@
             </div>
         </div>
 
+        <!-- MODULE PANEL: MATRIX RESULTS DISPLAY DASHBOARD SCREEN -->
         <div id="matrix-dashboard-screen" style="display: none;" class="space-y-6">
-            <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm text-center max-w-2xl mx-auto">
+            <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm text-center max-w-4xl mx-auto">
                 <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Your Position on the THRIVE Grid</h2>
                 <p class="text-gray-500 text-sm mb-6">We have combined your Life Satisfaction against your Burnout Indicators.</p>
                 
@@ -153,10 +154,21 @@
                 </div>
             </div>
 
-            <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col items-center max-w-2xl mx-auto">
-                <canvas id="thriveCanvas" width="560" height="430" class="max-w-full h-auto border border-gray-100 rounded-lg bg-white shadow-xs"></canvas>
+            <!-- Changed container to an adaptive multi-column grid block wrapper layout -->
+            <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                <!-- Left-side panel: Graph Canvas Plot Sheet Container Card -->
+                <div class="lg:col-span-2 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col items-center justify-center">
+                    <canvas id="thriveCanvas" width="560" height="430" class="max-w-full h-auto border border-gray-100 rounded-lg bg-white shadow-xs"></canvas>
+                </div>
                 
-                <div class="w-full border-t border-gray-100 pt-6 mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Right-side panel: Dynamic Diagnostic Advisory Framework Injection Node -->
+                <div id="advisory-box-container" class="lg:col-span-1 h-full flex items-center">
+                    <!-- JavaScript dynamically injects colorized advice blocks directly here -->
+                </div>
+            </div>
+
+            <div class="max-w-6xl mx-auto bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <button onclick="executeProgressExport()" class="w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-4 rounded-xl transition shadow-xs text-sm text-center cursor-pointer">
                         💾 Save Progress/Download Data & Exit or Continue
                     </button>
@@ -609,6 +621,7 @@
         }
 
         // Prepares calculations layout arrays to launch graph plotting canvas sheets
+ // Prepares calculations layout arrays to launch graph plotting canvas sheets
         function advanceFromDomainsToMatrixGrid() {
             document.getElementById("domains-summary-screen").style.display = 'none';
             document.getElementById("matrix-dashboard-screen").style.display = 'block';
@@ -627,6 +640,70 @@
             const layoutDisplayLabel = burnoutWordLabel.replace('-', ' / ');
             xBadge.innerText = `${layoutDisplayLabel} (${finalGlobalBurnoutAvg.toFixed(2)})`;
             xBadge.className = `inline-block mt-2 px-4 py-1 text-sm font-bold rounded-full border score-${burnoutWordLabel.replace(' ', '-')}`;
+
+            // --- INJECTED DYNAMIC ADVISORY BOX DISPATCH ENGINE ---
+            const colIndex = resolveDiscreteCellIndex(finalGlobalBurnoutAvg, true);
+            const rowIndex = resolveDiscreteCellIndex(finalGlobalLifeAvg, false);
+            const cellColorHex = matrixColorLayout[4 - rowIndex][colIndex];
+            
+            let advisoryHtml = "";
+            
+            // Branch mapping evaluations testing target coordinates against Green vs Yellow vs Red hex color slots
+            if (cellColorHex === "#38761d" || cellColorHex === "#6aa84f") {
+                // Thriving Category Context Box (Green Matrix Blocks Placement)
+                advisoryHtml = `
+                    <div class="bg-emerald-50/50 border-2 border-emerald-600 rounded-2xl p-6 text-left shadow-sm space-y-3 relative overflow-hidden">
+                        <div class="absolute left-0 top-0 bottom-0 w-2 bg-emerald-600"></div>
+                        <h4 class="text-lg font-bold text-emerald-800 flex items-center gap-2">
+                            <span>🎉</span> Congratulations, you are Thriving!
+                        </h4>
+                        <p class="text-sm text-gray-700 leading-relaxed">
+                            Your answers indicate your blue marker lands securely in a green zone. Good job! 
+                        </p>
+                        <p class="text-sm text-gray-600 leading-relaxed italic">
+                            You might still want to spend some time on your highest and lowest areas during the next phase to ensure you are intentionally <strong class="text-emerald-800 not-italic underline">making choices to keep yourself here</strong>.
+                        </p>
+                    </div>
+                `;
+            } else if (cellColorHex === "#f8f274" || cellColorHex === "#ffd966" || cellColorHex === "#ff9900") {
+                // Surviving Category Context Box (Yellow & Orange Matrix Blocks Placement)
+                advisoryHtml = `
+                    <div class="bg-amber-50/50 border-2 border-amber-500 rounded-2xl p-6 text-left shadow-sm space-y-3 relative overflow-hidden">
+                        <div class="absolute left-0 top-0 bottom-0 w-2 bg-amber-500"></div>
+                        <h4 class="text-lg font-bold text-amber-800 flex items-center gap-2">
+                            <span>⚖️</span> You are Surviving
+                        </h4>
+                        <p class="text-sm text-gray-700 leading-relaxed">
+                            Good job hanging in there, but let's get you some help! You are managing to stay afloat, but missing out on true vitality.
+                        </p>
+                        <p class="text-sm text-gray-600 leading-relaxed italic">
+                            You should lay out specific action plans for both your highest and lowest areas. This deliberate focus will give you the tools and strategy needed to <strong class="text-amber-800 not-italic underline">move from Surviving ➔ Thriving</strong>.
+                        </p>
+                    </div>
+                `;
+            } else {
+                // Danger Zone Category Context Box (Red Matrix Blocks Placement)
+                advisoryHtml = `
+                    <div class="bg-rose-50 border-2 border-red-600 rounded-2xl p-6 text-left shadow-md space-y-4 relative overflow-hidden animate-pulse-once">
+                        <div class="absolute left-0 top-0 bottom-0 w-2 bg-red-600"></div>
+                        <h4 class="text-lg font-black text-red-800 uppercase tracking-wide flex items-center gap-2">
+                            <span>⚠️</span> Danger Zone Alert
+                        </h4>
+                        <p class="text-sm font-semibold text-gray-800 leading-relaxed">
+                            Immediate action is required. Seeing your score map this low can feel shocking, but look at it as a clear validation of what your body and mind have been trying to tell you.
+                        </p>
+                        <p class="text-sm text-gray-700 leading-relaxed">
+                            Please consider taking immediate time off from work, and schedule a dedicated appointment with your doctor, a therapist, or lean on a trusted friend to construct supportive near-term lifelines.
+                        </p>
+                        <p class="text-sm text-gray-700 leading-relaxed bg-white border border-red-100 p-3 rounded-xl italic">
+                            You likely need some major changes to get on a path to Thriving, but <strong class="text-red-700 not-italic underline font-bold">you need healing first</strong> before you can tackle those. Review your highest and lowest metrics in the next screen to identify actions <strong class="text-red-700 not-italic font-bold">to achieve both short-term healing and long-term Thriving.</strong>
+                        </p>
+                    </div>
+                `;
+            }
+            
+            document.getElementById("advisory-box-container").innerHTML = advisoryHtml;
+            // --- END OF INJECTED DISPATCH ENGINE ---
 
             executeCanvasPlotMatrixEngine("thriveCanvas");
         }
