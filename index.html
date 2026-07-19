@@ -436,6 +436,12 @@
 
     </main>
 
+    <footer style="margin-top: 3rem; padding: 8px 16px; border-top: 1px solid #e5e7eb; background: #ffffff;">
+        <p style="max-width: 56rem; margin: 0 auto; text-align: center; font-size: 9px; line-height: 1.6; letter-spacing: 0.03em; color: #9ca3af; text-transform: uppercase;">
+            The THRIVE Assessment<sup>&copy;</sup> &nbsp;|&nbsp; Patricia Massey Coaching &nbsp;|&nbsp; Proprietary &amp; Exclusive Program Content &mdash; Do Not Copy or Duplicate Without Written Permission &nbsp;|&nbsp; <span style="white-space: nowrap;">All Rights Reserved &copy; <span id="footer-year"></span></span>
+        </p>
+    </footer>
+
 
     <script>
         // --- 1. DATA MODELS & STRUCTURAL DICTIONARIES ---
@@ -1764,6 +1770,9 @@
                 alert('Sorry, something went wrong generating your PDF. Please try again.');
             });
         }
+
+        // Keeps the footer's copyright year current without needing manual updates
+        document.getElementById('footer-year').textContent = new Date().getFullYear();
     </script>
 </body>
 </html>
