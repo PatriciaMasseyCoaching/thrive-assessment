@@ -41,7 +41,7 @@
 
 <!--  **************************************************** -->
 <!-- comment out the Developer slider box by opening the comment on the line below: -->
-
+<!--
 
         <div class="max-w-2xl mx-auto mb-6 bg-slate-900 text-white rounded-2xl p-6 shadow-md border border-slate-800">
             <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
@@ -84,7 +84,7 @@
         </div>
 
 
-
+-->
 <!-- comment out the Developer sliders box by closing the comment on the line above -->
 <!--  **************************************************** -->
 
@@ -198,6 +198,7 @@
             <span id="transition-phase-tag" class="text-xs font-bold text-emerald-600 uppercase tracking-wider block mb-2">Up Next</span>
             <h2 id="transition-title" class="text-3xl font-extrabold text-gray-900 mb-4">Loading Domain...</h2>
             <p id="transition-desc" class="text-gray-600 mb-8 leading-relaxed text-lg"></p>
+            <p id="transition-credit" style="display: none; color: #9ca3af; font-size: 12px; font-style: italic; margin-top: -24px; margin-bottom: 32px;"></p>
             <button onclick="proceedToActiveQuestions()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-8 py-3 rounded-xl transition duration-150 cursor-pointer shadow-sm">
                 Let's Go
             </button>
@@ -469,7 +470,7 @@
             "Home": { title: "Now let's do Home", desc: "Next, we look at your satisfaction with various aspects of your home life." },
             "External/Community": { title: "Next is External/Community", desc: "This could be a book club or a bowling league or a faith community. Somewhere else you go for a network or support." },
             "Self": { title: "Let's finish with Self", desc: "Finally, we will evaluate your satisfaction with various aspects of your personal well-being." },
-            "Burnout Evaluation": { title: "Let's look at Burnout", desc: "We will now switch focus to gauge your burnout risk." }
+            "Burnout Evaluation": { title: "Let's look at Burnout", desc: "We will now switch focus to gauge your burnout risk.", credit: "Burnout is a recognized medical diagnosis.  The following questions are adapted from the Mayo Clinic's published guidance for assessing burnout." }
         };
 
         // 360 Core Life Satisfaction Assessment Questions (Items 0 to 23)
@@ -594,11 +595,20 @@
 
             if (!viewedTransitions[cat]) {
                 viewedTransitions[cat] = true;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
                 document.getElementById('assessment-container').style.display = 'none';
                 document.getElementById('transition-screen').style.display = 'block';
                 
                 document.getElementById('transition-title').innerText = domainTransitions[cat].title;
                 document.getElementById('transition-desc').innerText = domainTransitions[cat].desc;
+
+                const creditEl = document.getElementById('transition-credit');
+                if (domainTransitions[cat].credit) {
+                    creditEl.innerText = domainTransitions[cat].credit;
+                    creditEl.style.display = 'block';
+                } else {
+                    creditEl.style.display = 'none';
+                }
             } else {
                 proceedToActiveQuestions();
             }
@@ -614,6 +624,7 @@
         // --- 4. QUESTION CARD RENDERING ENGINE ENGINE ---
         // Dynamically renders the active question, reflection notes, and colorized selection choices
         function drawActiveQuestionCard() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             const q = masterQuestions[activeQuestionIndex];
             const savedState = masterResponses[activeQuestionIndex];
 
@@ -784,6 +795,7 @@
 
         // Generates intermediate cards showing the 4 primary life categories
         function renderIndividualDomainsPage() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             document.getElementById('app-phase-badge').innerText = "Life Domain Summary";
             document.getElementById("domains-summary-screen").style.display = 'block';
 
@@ -809,6 +821,7 @@
         // Prepares calculations layout arrays to launch graph plotting canvas sheets
  // Prepares calculations layout arrays to launch graph plotting canvas sheets
         function advanceFromDomainsToMatrixGrid() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             document.getElementById("domains-summary-screen").style.display = 'none';
             document.getElementById("matrix-dashboard-screen").style.display = 'block';
             
@@ -965,6 +978,7 @@
 
         // Loads strategy planning data tables and updates status tags
         function advanceToPlannerSelection() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             document.getElementById('matrix-dashboard-screen').style.display = 'none';
             document.getElementById('selection-screen').style.display = 'block';
             document.getElementById('app-phase-badge').className = "text-xs font-semibold uppercase tracking-wider bg-sky-50 text-sky-700 px-3 py-1 rounded-full border border-sky-200";
@@ -1089,6 +1103,7 @@
         };
 
         function renderDynamicSequencerPage() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             const data = planningSequenceList[runningSeqIdx];
             const badge = document.getElementById("seq-type-badge");
 
@@ -1162,6 +1177,7 @@
                 runningSeqIdx--;
                 renderDynamicSequencerPage();
             } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
                 document.getElementById("sequencer-screen").style.display = 'none';
                 document.getElementById("selection-screen").style.display = 'block';
             }
@@ -1169,6 +1185,7 @@
 
         // Generates overall strategy review and text edit fields sheet summary
         function initializeSummaryReviewDashboard(mode) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             activeSummaryFilter = mode;
             document.getElementById("summary-review-screen").style.display = 'block';
             document.getElementById('app-phase-badge').innerText = mode === "PROTECT" ? "Review" : "Review";
@@ -1232,9 +1249,9 @@
         // Routes review card flows between positive and negative focus blocks
         function processSummaryAdvance() {
             if (activeSummaryFilter === "PROTECT") {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
                 initializeSummaryReviewDashboard("ADDRESS");
             } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
                 document.getElementById("summary-review-screen").style.display = 'none';
                 document.getElementById("finish-screen").style.display = 'block';
             }
