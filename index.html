@@ -21,7 +21,6 @@
         .score-Medium, .badge-Medium, .score-Sometimes { background-color: #fef3c7; color: #92400e; }
         .score-Medium-High, .badge-Medium-High, .score-Infrequently { background-color: #dcfce7; color: #166534; }
         .score-High, .badge-High, .score-Rarely-Never { background-color: #1e5e3a; color: #ffffff; }
-        textarea { resize: none; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen font-sans antialiased text-gray-900 pb-12">
@@ -42,7 +41,7 @@
 
 <!--  **************************************************** -->
 <!-- comment out the Developer slider box by opening the comment on the line below: -->
-<!--
+
 
         <div class="max-w-2xl mx-auto mb-6 bg-slate-900 text-white rounded-2xl p-6 shadow-md border border-slate-800">
             <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
@@ -85,7 +84,7 @@
         </div>
 
 
--->
+
 <!-- comment out the Developer sliders box by closing the comment on the line above -->
 <!--  **************************************************** -->
 
@@ -94,13 +93,13 @@
             <h2 class="text-3xl font-extrabold text-gray-900">Welcome to the THRIVE Assessment<sup class="text-xs">&copy;</sup> by Patricia Massey Coaching</h2>
             
 	<p class="text-gray-600 leading-relaxed text-sm">
- 	   This is a self-guided version of my private 1-to-1 THRIVE Diagnostic Virtual Workshop.  It assesses satisfaction across four Life Domains, gauges Burnout risk, and facilitates the construction of an Action Blueprint.
+ 	   I am so glad that you are taking this self-guided version of my private 1-to-1 THRIVE Diagnostic Virtual Workshop.  It assesses your satisfaction across four Life Domains, gauges your Burnout risk, and facilitates the construction of an Action Blueprint.
 	</p>
 	<p class="text-gray-600 leading-relaxed text-sm">
-   	My wish is that you will take this time for honest introspection while answering the Questions, as that will provide the best insights for following the Action Planning prompts.   
+   	While it cannot fully replace a facilitated 1-to-1 discussion, if you will take the time for honest introspection while answering each of the Questions, I think you will be amazed at how much you learn and how helpful that is when you get to Action Planning.  
 	</p>
 	<p class="text-gray-600 leading-relaxed text-sm">
-    	Please allow 45-60 minutes to complete both pieces. If you cannot complete it all at once, you will have one option to pause/save between the Questionnaire and the Action Planning.  When ready to resume, simply relaunch the app and use Option B. (Note: be sure to copy the link above before closing the tab, so you can use it to relaunch).
+    	Please allow 45-60 minutes to complete both pieces. If you cannot complete it all at once, you will have one opportunity to pause/save between the Questionnaire and the Action Planning.  When ready to resume, simply relaunch the app and use Option B. (Note: be sure to copy the link above before closing the tab, so you can use it to relaunch).
 	<p class="text-xs bg-slate-100 border border-slate-200 text-slate-600 p-3 rounded-xl text-left italic">
     <strong>🔒 Privacy Note:</strong> This is a static webpage. Your responses and reflections are processed entirely within your local browser. All data is compiled into a downloadable PDF at the conclusion of the session, and no information is collected, tracked, or retained online once you close this tab.
 </p>    
@@ -434,6 +433,24 @@
         </div>
         <style>@keyframes pdf-spin { to { transform: rotate(360deg); } }</style>
 
+        <!-- One-time nudge shown if someone tries to advance past a question with an empty
+             notes box. Custom-styled (inline CSS, matching the app's palette) rather than a
+             native browser confirm() dialog, so it reads as part of the tool, not a browser error. -->
+        <div id="musings-nudge-modal" style="display: none; position: fixed; inset: 0; z-index: 1000001; background: rgba(17,24,39,0.6); align-items: center; justify-content: center; padding: 16px;">
+            <div style="background: #ffffff; border-radius: 16px; max-width: 420px; width: 100%; padding: 28px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15), 0 10px 10px -5px rgba(0,0,0,0.06); text-align: center; font-family: sans-serif;">
+                <div style="font-size: 32px; margin-bottom: 10px; line-height: 1;">💭</div>
+                <p style="font-size: 15px; line-height: 1.6; color: #374151; margin: 0 0 22px 0;">
+                    If you take the time to write down a few thoughts first, before selecting a rating, I have found it leads to a more accurate score. And these comments will also be helpful later on when you get to the Action Planning phase.
+                    <br><br>
+                    <strong style="color: #111827;">Are you sure you don't want to write a little bit?</strong>
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button onclick="dismissMusingsNudge(false)" style="background: #059669; color: #ffffff; font-weight: 600; padding: 12px; border-radius: 12px; border: none; cursor: pointer; font-size: 14px; font-family: inherit;">Let Me Add a Note</button>
+                    <button onclick="dismissMusingsNudge(true)" style="background: #ffffff; color: #6b7280; font-weight: 500; padding: 10px; border-radius: 12px; border: 1px solid #d1d5db; cursor: pointer; font-size: 13px; font-family: inherit;">Continue Without Notes</button>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <footer style="margin-top: 3rem; padding: 8px 16px; border-top: 1px solid #e5e7eb; background: #ffffff;">
@@ -520,6 +537,7 @@
 
         // --- 2. SESSION SYSTEM VARIABLES STATE ---
         let activeQuestionIndex = 0; // Tracks which question is currently visible
+        let hasShownMusingsNudge = false; // Ensures the "did you mean to skip notes?" prompt only ever appears once
         let viewedTransitions = {}; // Remembers which category intro screens have already been shown
         let selectedProtectIds = []; // Holds the index selections for the 3 positive priority rows
         let selectedAddressIds = []; // Holds the index selections for the 3 negative priority rows
@@ -665,6 +683,32 @@
                 return;
             }
 
+            // One-time gentle nudge: if this is the first question they've left the notes box
+            // empty on, check they meant to skip it. Never shown again after the first time,
+            // regardless of how they respond. Shows a custom on-brand modal (not a native
+            // browser confirm()) and pauses here — dismissMusingsNudge() picks up from there.
+            if (masterResponses[activeQuestionIndex].musing.trim() === "" && !hasShownMusingsNudge) {
+                hasShownMusingsNudge = true;
+                document.getElementById('musings-nudge-modal').style.display = 'flex';
+                return;
+            }
+
+            performQuestionAdvance();
+        }
+
+        // Called by the musings-nudge modal's two buttons. shouldContinue=true means "Continue
+        // Without Notes" (proceed as normal); false means "Let Me Add a Note" (stay put so they
+        // can type — no advance happens).
+        function dismissMusingsNudge(shouldContinue) {
+            document.getElementById('musings-nudge-modal').style.display = 'none';
+            if (shouldContinue) {
+                performQuestionAdvance();
+            }
+        }
+
+        // The actual step-advance logic, shared by the normal path and the "continue anyway"
+        // path out of the musings-nudge modal.
+        function performQuestionAdvance() {
             if (activeQuestionIndex < masterQuestions.length - 1) {
                 const activeCat = masterQuestions[activeQuestionIndex].category;
                 const upcomingCat = masterQuestions[activeQuestionIndex + 1].category;
@@ -1026,6 +1070,24 @@
         }
 
         // populates text area input frameworks inside core action-sequencer wizard
+        // Generic (domain-agnostic) guiding question + illustrative example for each of the 4
+        // time horizons, for both Protect and Address items. Shared by the one-at-a-time
+        // sequencer screen and the bulk summary/review screen, so both always show the same text.
+        const actionPlanPlaceholders = {
+            PROTECT: {
+                immediate: "What can you do today/tomorrow to explicitly acknowledge, celebrate, or maintain this area of strength? e.g., 'Tell someone thank you for it' or 'Take a few minutes to simply enjoy it.'",
+                short: "What routine should you re-commit to, to ensure this area stays healthy and insulated from stress? e.g., 'Block my usual time for it this week' or 'Say no to one thing that threatens it.'",
+                medium: "How can you intentionally leverage this strength to support other areas of your life that need attention? e.g., 'Use the confidence I feel here to tackle something harder elsewhere.'",
+                long: "Looking ahead, what goals or milestones do you want to set that will ensure this remains a centerpiece of your world? e.g., 'Check in on this every 6 months to make sure it stays a priority.'"
+            },
+            ADDRESS: {
+                immediate: "What is one small change you can make in the next 24 hours to break stagnation and create momentum? e.g., 'Send the email I have been avoiding' or 'Write down exactly what is bothering me.'",
+                short: "What near-term course corrections, micro-routines, or conversations will give you immediate relief? e.g., 'Have a short conversation with the person involved this week.'",
+                medium: "What new habits, routine resets, or pattern changes can you build over the next few months to reverse this trend? e.g., 'Try a new weekly routine for 8 weeks and track how it feels.'",
+                long: "What long-range goals, milestones, or life pivots will permanently transform this part of your life? e.g., 'Decide if a bigger change is needed within the next year, and what small steps get you there.'"
+            }
+        };
+
         function renderDynamicSequencerPage() {
             const data = planningSequenceList[runningSeqIdx];
             const badge = document.getElementById("seq-type-badge");
@@ -1054,18 +1116,11 @@
             const mediumInput = document.getElementById("time-medium");
             const longInput = document.getElementById("time-long");
 
-            if (data.type === "PROTECT") {
-                immediateInput.placeholder = "What can you do today/tomorrow to explicitly acknowledge, celebrate, or maintain this area of strength?";
-                shortInput.placeholder = "What routine should you re-commit to, to ensure this area stays healthy and insulated from stress?";
-                mediumInput.placeholder = "How can you intentionally leverage this strength to support other areas of your life that need attention?";
-                longInput.placeholder = "Looking ahead, what goals or milestones do you want to set that will ensure this remains a centerpiece of your world?";
-            } else {
-                // Strategic prompts customized for addressing problematic growth areas
-                immediateInput.placeholder = "What is one small change you can make in the next 24 hours to break stagnation and create momentum?";
-                shortInput.placeholder = "What near-term course corrections, micro-routines, or conversations will give you immediate relief?";
-                mediumInput.placeholder = "What new habits, routine resets, or pattern changes can you build over the next few months to reverse this trend?";
-                longInput.placeholder = "What long-range goals, milestones, or life pivots will permanently transform this part of your life? And what short/medium-term goals would ensure you get there?";
-            }
+            const promptSet = actionPlanPlaceholders[data.type];
+            immediateInput.placeholder = promptSet.immediate;
+            shortInput.placeholder = promptSet.short;
+            mediumInput.placeholder = promptSet.medium;
+            longInput.placeholder = promptSet.long;
 
 			
 			// --- ADD THIS BLOCK TO DYNAMICALLY POPULATE THE REFLECTIONS BOX ---
@@ -1134,6 +1189,7 @@
             let cardsHtml = "";
             subsetList.forEach(item => {
                 const cleanedClassString = item.label.replace(/ \/ /g, '-').replace(/ /g, '-');
+                const promptSet = actionPlanPlaceholders[item.type];
                 cardsHtml += `
                     <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
                         <div class="flex justify-between items-start border-b border-gray-100 pb-3">
@@ -1146,19 +1202,19 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                             <div>
                                 <label class="block text-xs font-bold text-gray-600 uppercase mb-1">⚡ Immediate Action (24h)</label>
-                                <textarea onchange="syncInlineEditValue(${item.index}, 'immediate', this.value)" rows="2" class="w-full border border-gray-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none">${item.actions.immediate}</textarea>
+                                <textarea onchange="syncInlineEditValue(${item.index}, 'immediate', this.value)" rows="2" class="w-full border border-gray-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none" placeholder="${promptSet.immediate}">${item.actions.immediate}</textarea>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-600 uppercase mb-1">📅 Short Term (Days/Weeks)</label>
-                                <textarea onchange="syncInlineEditValue(${item.index}, 'short', this.value)" rows="2" class="w-full border border-gray-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none">${item.actions.short}</textarea>
+                                <textarea onchange="syncInlineEditValue(${item.index}, 'short', this.value)" rows="2" class="w-full border border-gray-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none" placeholder="${promptSet.short}">${item.actions.short}</textarea>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-600 uppercase mb-1">⛰️ Medium Term (Weeks/Months)</label>
-                                <textarea onchange="syncInlineEditValue(${item.index}, 'medium', this.value)" rows="2" class="w-full border border-gray-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none">${item.actions.medium}</textarea>
+                                <textarea onchange="syncInlineEditValue(${item.index}, 'medium', this.value)" rows="2" class="w-full border border-gray-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none" placeholder="${promptSet.medium}">${item.actions.medium}</textarea>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-600 uppercase mb-1">🚀 Long Term (Months/Years)</label>
-                                <textarea onchange="syncInlineEditValue(${item.index}, 'long', this.value)" rows="2" class="w-full border border-gray-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none">${item.actions.long}</textarea>
+                                <textarea onchange="syncInlineEditValue(${item.index}, 'long', this.value)" rows="2" class="w-full border border-gray-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none" placeholder="${promptSet.long}">${item.actions.long}</textarea>
                             </div>
                         </div>
                     </div>
